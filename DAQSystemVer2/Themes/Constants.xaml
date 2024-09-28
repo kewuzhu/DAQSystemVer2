@@ -1,0 +1,85 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:Double x:Key="DAQSystem.DefaultFontSize">18</system:Double>
+
+    <system:Double x:Key="DAQSystem.SmallMarginSize">2.5</system:Double>
+    <system:Double x:Key="DAQSystem.DefaultMarginSize">5</system:Double>
+    <system:Double x:Key="DAQSystem.MediumMarginSize">12.5</system:Double>
+    <system:Double x:Key="DAQSystem.LargeMarginSize">20</system:Double>
+
+    <GridLength x:Key="DAQSystem.SmallMarginGridLength">2.5</GridLength>
+    <GridLength x:Key="DAQSystem.DefaultMarginGridLength">5</GridLength>
+    <GridLength x:Key="DAQSystem.MediumMarginGridLength">12.5</GridLength>
+    <GridLength x:Key="DAQSystem.LargeMarginGridLength">20</GridLength>
+
+    <system:Double x:Key="DAQSystem.DefaultButtonHeight">35</system:Double>
+
+    <system:Double x:Key="DAQSystem.SplashScreenLogoHeight">125</system:Double>
+
+    <FontFamily x:Key="DAQSystem.DefaultFontFamily">Gotham</FontFamily>
+
+    <Thickness x:Key="DAQSystem.DefaultBorderThickness">0.25</Thickness>
+
+    <Thickness
+        x:Key="DAQSystem.SmallMarginThickness"
+        Bottom="{StaticResource DAQSystem.SmallMarginSize}"
+        Left="{StaticResource DAQSystem.SmallMarginSize}"
+        Right="{StaticResource DAQSystem.SmallMarginSize}"
+        Top="{StaticResource DAQSystem.SmallMarginSize}" />
+
+    <Thickness
+        x:Key="DAQSystem.DefaultMarginThickness"
+        Bottom="{StaticResource DAQSystem.DefaultMarginSize}"
+        Left="{StaticResource DAQSystem.DefaultMarginSize}"
+        Right="{StaticResource DAQSystem.DefaultMarginSize}"
+        Top="{StaticResource DAQSystem.DefaultMarginSize}" />
+
+    <Thickness
+        x:Key="DAQSystem.MediumMarginThickness"
+        Bottom="{StaticResource DAQSystem.MediumMarginSize}"
+        Left="{StaticResource DAQSystem.MediumMarginSize}"
+        Right="{StaticResource DAQSystem.MediumMarginSize}"
+        Top="{StaticResource DAQSystem.MediumMarginSize}" />
+
+    <Thickness
+        x:Key="DAQSystem.LargeMarginThickness"
+        Bottom="{StaticResource DAQSystem.LargeMarginSize}"
+        Left="{StaticResource DAQSystem.LargeMarginSize}"
+        Right="{StaticResource DAQSystem.LargeMarginSize}"
+        Top="{StaticResource DAQSystem.LargeMarginSize}" />
+
+    <Thickness
+        x:Key="DAQSystem.NavBarMarginThickness"
+        Bottom="0"
+        Left="125"
+        Right="125"
+        Top="35" />
+
+    <Thickness
+        x:Key="DAQSystem.PanelMarginThickness"
+        Bottom="{StaticResource DAQSystem.DefaultMarginSize}"
+        Left="{StaticResource DAQSystem.DefaultMarginSize}"
+        Right="{StaticResource DAQSystem.MediumMarginSize}"
+        Top="{StaticResource DAQSystem.DefaultMarginSize}" />
+
+    <Thickness
+        x:Key="DAQSystem.PanelContentMarginThickness"
+        Bottom="0"
+        Left="10"
+        Right="0"
+        Top="0" />
+
+    <Thickness
+        x:Key="DAQSystem.StatsDisplayMarginThickness"
+        Bottom="50"
+        Left="275"
+        Right="275"
+        Top="50" />
+
+    <CornerRadius x:Key="DAQSystem.DefaultCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="DAQSystem.ButtonCornerRadius">5</CornerRadius>
+
+</ResourceDictionary>

@@ -1,0 +1,31 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:Double x:Key="DAQSystem.SplashScreenLogoHeight">200</system:Double>
+
+    <FontFamily x:Key="DAQSystem.DefaultFontFamily">Microsoft YaHei</FontFamily>
+
+    <Thickness
+        x:Key="DAQSystem.NavBarMarginThickness"
+        Bottom="0"
+        Left="125"
+        Right="125"
+        Top="45" />
+
+    <Thickness
+        x:Key="DAQSystem.StatsDisplayMarginThickness"
+        Bottom="50"
+        Left="200"
+        Right="200"
+        Top="50" />
+
+    <system:String x:Key="DAQSystem.Common.Cancel">取消</system:String>
+    <system:String x:Key="DAQSystem.Common.No">否</system:String>
+    <system:String x:Key="DAQSystem.Common.OK">OK</system:String>
+    <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
+
+    <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
+
+</ResourceDictionary>
