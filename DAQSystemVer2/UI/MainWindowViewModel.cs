@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using DAQSystem.Common.Model;
 using OxyPlot;
 
 namespace DAQSystem.Application.UI

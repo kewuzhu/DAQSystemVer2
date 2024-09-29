@@ -1,5 +1,9 @@
 {
   "Language": 1,
   "ConsoleLoggerLogLevel": 31,
-  "WorkingDirectory": "DAQSystem"
+  "WorkingDirectory": "DAQSystem",
+  "SerialConfiguration": {
+    "SerialPort": "COM3",
+    "Baudrate": 115200
+  }
 }

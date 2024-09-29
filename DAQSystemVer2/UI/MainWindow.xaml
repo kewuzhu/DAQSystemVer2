@@ -24,8 +24,7 @@
             <DockPanel>
                 <Menu DockPanel.Dock="Top">
                     <MenuItem Header="_File">
-                        <MenuItem 
-                            Header="_Open"/>
+                        <MenuItem Header="_Open"/>
                         <MenuItem Header="_Close"/>
                         <MenuItem Header="_Save"/>
                     </MenuItem>
@@ -51,6 +50,7 @@
                     Background="Transparent"
                     BorderThickness="0"
                     FontWeight="Normal"
+                    FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
                     Model="{Binding PlotModel}">
                 </oxy:PlotView>
             </Grid>

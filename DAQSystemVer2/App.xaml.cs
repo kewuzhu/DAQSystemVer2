@@ -3,6 +3,7 @@ using DAQSystem.Application.Themes;
 using DAQSystem.Application.UI;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Utility;
+using DAQSystem.DataAcquisition;
 using DAQSystem.Model;
 using NLog;
 using System.Diagnostics;
@@ -38,6 +39,10 @@ namespace DAQSystem.Application
                 LogUtils.InitializeExtendedLogging(appConfig.FileLoggerLogLevel, appLogTargetName_, appConfig.ConsoleLoggerLogLevel);
 
                 Theme.AddStringsDictionary(appConfig.Language);
+
+                dataAcquisitionControl_.Initialize(appConfig.SerialConfiguration.SerialPort, appConfig.SerialConfiguration.Baudrate);
+
+                dataAcquisitionControl_.WriteCommand(CommandTypes.StartToCollect,"000000");
 
                 mainWindowViewModel_ = new MainWindowViewModel();
                 MainWindow = new MainWindow { DataContext = mainWindowViewModel_ };
@@ -93,6 +98,8 @@ namespace DAQSystem.Application
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
+        private readonly DataAcquisitionControl dataAcquisitionControl_ = new();
+
         private string logDirectory_;
         private string appLogTargetName_;
         private MainWindowViewModel mainWindowViewModel_;

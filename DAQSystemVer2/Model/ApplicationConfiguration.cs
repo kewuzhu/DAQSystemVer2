@@ -11,5 +11,7 @@ namespace DAQSystem.Application.Model
         public LogLevel? FileLoggerLogLevel { get; set; }
 
         public string WorkingDirectory { get; set; }
+
+        public SerialConfiguration SerialConfiguration { get; set; }
     }
 }

@@ -2,8 +2,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- font settings -->
+    <FontFamily x:Key="DAQSystem.DefaultFontFamily">Segoe UI</FontFamily>
+    <system:Double x:Key="DAQSystem.DefaultFontSize">13</system:Double>
 
-    <system:Double x:Key="DAQSystem.DefaultFontSize">18</system:Double>
+    <FontFamily x:Key="DAQSystem.FixedFontFamily">Consolas</FontFamily>
+    <system:Double x:Key="DAQSystem.FixedFontSize">13.333</system:Double>
+
+    <system:Double x:Key="DAQSystem.SmallFontSize">11</system:Double>
 
     <system:Double x:Key="DAQSystem.SmallMarginSize">2.5</system:Double>
     <system:Double x:Key="DAQSystem.DefaultMarginSize">5</system:Double>
@@ -18,8 +24,6 @@
     <system:Double x:Key="DAQSystem.DefaultButtonHeight">35</system:Double>
 
     <system:Double x:Key="DAQSystem.SplashScreenLogoHeight">125</system:Double>
-
-    <FontFamily x:Key="DAQSystem.DefaultFontFamily">Gotham</FontFamily>
 
     <Thickness x:Key="DAQSystem.DefaultBorderThickness">0.25</Thickness>
 

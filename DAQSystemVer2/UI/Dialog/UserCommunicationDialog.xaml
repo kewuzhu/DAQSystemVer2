@@ -36,7 +36,7 @@
                 FontWeight="Medium"
                 Text="{Binding Caption}">
                 <TextBlock.Style>
-                    <Style TargetType="TextBlock">
+                    <Style BasedOn="{StaticResource DAQSystem.Heading1}" TargetType="TextBlock">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Caption}" Value="{x:Null}">
                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -48,6 +48,7 @@
 
             <TextBlock
                 Grid.Row="2"
+                Style ="{StaticResource DAQSystem.Fixed}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Text="{Binding Message}"
@@ -74,7 +75,7 @@
                     Command="{Binding CancelCommand}"
                     IsEnabled="{Binding IsButtonsEnabled}">
                     <Button.Style>
-                        <Style TargetType="Button">
+                        <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ButtonType}" Value="OK">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -95,7 +96,7 @@
                     Command="{Binding OKCommand}"
                     IsEnabled="{Binding IsButtonsEnabled}">
                     <Button.Style>
-                        <Style TargetType="Button">
+                        <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ButtonType}" Value="OK">
                                     <Setter Property="Content" Value="{StaticResource DAQSystem.Common.OK}" />

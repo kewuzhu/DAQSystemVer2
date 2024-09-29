@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\ControlBoard\DataAcquisition.csproj" />
   </ItemGroup>
 
 </Project>
