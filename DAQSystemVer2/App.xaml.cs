@@ -40,11 +40,7 @@ namespace DAQSystem.Application
 
                 Theme.AddStringsDictionary(appConfig.Language);
 
-                dataAcquisitionControl_.Initialize(appConfig.SerialConfiguration.SerialPort, appConfig.SerialConfiguration.Baudrate);
-
-                dataAcquisitionControl_.WriteCommand(CommandTypes.StartToCollect,"000000");
-
-                mainWindowViewModel_ = new MainWindowViewModel();
+                mainWindowViewModel_ = new MainWindowViewModel(appConfig.SerialConfiguration);
                 MainWindow = new MainWindow { DataContext = mainWindowViewModel_ };
 
                 MainWindow.Show();
@@ -98,7 +94,6 @@ namespace DAQSystem.Application
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
-        private readonly DataAcquisitionControl dataAcquisitionControl_ = new();
 
         private string logDirectory_;
         private string appLogTargetName_;

@@ -24,6 +24,7 @@
     <system:String x:Key="DAQSystem.Common.Cancel">取消</system:String>
     <system:String x:Key="DAQSystem.Common.No">否</system:String>
     <system:String x:Key="DAQSystem.Common.OK">OK</system:String>
+    <system:String x:Key="DAQSystem.Common.Title">多道系统</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>

@@ -6,6 +6,7 @@
     <system:String x:Key="DAQSystem.Common.Cancel">Cancel</system:String>
     <system:String x:Key="DAQSystem.Common.No">No</system:String>
     <system:String x:Key="DAQSystem.Common.OK">OK</system:String>
+    <system:String x:Key="DAQSystem.Common.Title">DAQSystem</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>

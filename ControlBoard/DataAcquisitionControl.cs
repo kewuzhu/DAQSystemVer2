@@ -1,4 +1,5 @@
-﻿using DAQSystem.Common.Utility;
+﻿using DAQSystem.Common.Model;
+using DAQSystem.Common.Utility;
 using NLog;
 using System.IO.Ports;
 using System.Text;
@@ -7,18 +8,20 @@ namespace DAQSystem.DataAcquisition
 {
     public class DataAcquisitionControl : SyncContextAwareObject
     {
-        public event EventHandler<byte[]> MsgReceived;
+        public event EventHandler<List<byte>> MsgReceived;
 
         private const int MIN_QUERY_INTERVAL = 100;   // ms
-        private readonly byte[] COMM_HEAD = new byte[] { 0xAA, 0xBB, 0x00, 0x00 };
-        private readonly byte[] COMM_TAIL = new byte[]{ 0xEE, 0xFF };
+        private readonly byte[] RECV_HEAD = new byte[] { 0xAA, 0xBB, 0x00, 0x00 };
+        private readonly byte[] RECV_TAIL = new byte[]{ 0xEE, 0xFF };
 
         public bool IsInitialized { get; private set; }
 
-        public void Initialize(string comPort, int baudrate, int queryInterval = MIN_QUERY_INTERVAL)
+        public void Initialize(SerialConfiguration serialconfig, int queryInterval = MIN_QUERY_INTERVAL)
         {
             if (queryInterval < MIN_QUERY_INTERVAL)
                 throw new ArgumentException($"{nameof(queryInterval)} must be greater or equal to {MIN_QUERY_INTERVAL}.");
+
+            var comPort = serialconfig.SerialPort;
 
             if (IsInitialized)
             {
@@ -31,7 +34,7 @@ namespace DAQSystem.DataAcquisition
 
             comPort_ = comPort;
             queryInterval_ = queryInterval;
-            serialPort_ = new SerialPort(comPort_, baudrate, Parity.None, 8, StopBits.One);
+            serialPort_ = new SerialPort(comPort_, serialconfig.Baudrate, Parity.None, 8, StopBits.One);
             serialPort_.Open();
             serialPort_.DiscardInBuffer();
             serialPort_.DiscardOutBuffer();
@@ -74,11 +77,12 @@ namespace DAQSystem.DataAcquisition
             serialPort_.Read(buffer, 0, bytesToRead);
 
             readBuffer_.AddRange(buffer);
-            logger_.Info($"msg recv: {string.Join(", ", buffer)}");
-            if (readBuffer_.TakeLast(2) == COMM_TAIL)
+            if (readBuffer_.TakeLast(2) == RECV_TAIL)
+            {
+                MsgReceived?.Invoke(this, buffer.ToList());
                 replyReceived_.Set();
+            }
         }
-
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly Dictionary<CommandTypes, byte[]> commandHeaderLut_ = new()

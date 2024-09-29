@@ -7,7 +7,9 @@
         xmlns:ui="clr-namespace:DAQSystem.Application.UI"
         d:DataContext="{d:DesignInstance Type=ui:MainWindowViewModel}"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="{StaticResource DAQSystem.Common.Title}"
+        Foreground="{StaticResource DAQSystem.DefaultForegroundColor}"
+        Background="{StaticResource DAQSystem.WindowBackground}"
         Height="450" 
         Width="800">
     <Grid>
@@ -53,6 +55,30 @@
                     FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
                     Model="{Binding PlotModel}">
                 </oxy:PlotView>
+            </Grid>
+            <Grid Grid.Column="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                    </Button>
+                    <ListBox 
+                        Grid.Row="2" 
+                        Grid.Column="0" 
+                        ItemsSource="{Binding DataAcquisitionSettings}"
+                        SelectedItem="{Binding SelectedSetting, Mode=TwoWay}">
+                    </ListBox>
+                    <Grid Grid.Row="2" Grid.Column="2">
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
         <Grid Grid.Row="4">
