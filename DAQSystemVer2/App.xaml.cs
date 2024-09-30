@@ -3,8 +3,6 @@ using DAQSystem.Application.Themes;
 using DAQSystem.Application.UI;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Utility;
-using DAQSystem.DataAcquisition;
-using DAQSystem.Model;
 using NLog;
 using System.Diagnostics;
 using System.IO;

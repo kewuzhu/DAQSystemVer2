@@ -1,4 +1,4 @@
-﻿namespace DAQSystem.Model
+﻿namespace DAQSystem.Application.Model
 {
     internal enum ApplicationExitCode
     {

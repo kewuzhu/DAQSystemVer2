@@ -4,6 +4,7 @@ using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
 using DAQSystem.DataAcquisition;
+using DAQSystem.Application.Model;
 using NLog;
 using OxyPlot;
 
@@ -12,6 +13,9 @@ namespace DAQSystem.Application.UI
     internal partial class MainWindowViewModel : ObservableObject
     {
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
+
+        [ObservableProperty]
+        private AppStatus currentStatus;
 
         [ObservableProperty]
         private CommandTypes selectedSetting;
@@ -24,10 +28,17 @@ namespace DAQSystem.Application.UI
         {
             try
             {
-                if (!dataAcquisitionControl_.IsInitialized)
-                    dataAcquisitionControl_.Initialize(serialConfig_);
+                if (CurrentStatus == AppStatus.Idle)
+                {
+                    CurrentStatus = AppStatus.Connected;
+                    //dataAcquisitionControl_.Initialize(serialConfig_);
+                }
                 else
-                    dataAcquisitionControl_.Uninitialize();
+                {
+                    //dataAcquisitionControl_.Uninitialize();
+                    CurrentStatus = AppStatus.Idle;
+                }
+
 
             }
             catch (Exception ex)
@@ -41,6 +52,7 @@ namespace DAQSystem.Application.UI
         {
             serialConfig_ = serialConfig ?? throw new ArgumentNullException(nameof(serialConfig));
 
+            CurrentStatus = AppStatus.Idle;
             InitializePlot();
         }
 

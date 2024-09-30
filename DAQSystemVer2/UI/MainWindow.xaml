@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:ui="clr-namespace:DAQSystem.Application.UI"
+        xmlns:model="clr-namespace:DAQSystem.Application.Model"
         d:DataContext="{d:DesignInstance Type=ui:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="{StaticResource DAQSystem.Common.Title}"
@@ -62,21 +63,69 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5"/>
                         <RowDefinition />
+                        <RowDefinition Height="5"/>
+                        <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="5"/>
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                    <Button 
+                        Grid.Row="0"
+                        Command="{Binding ToggleConnectCommand}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
+                                <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
+                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartSerialCommunication}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                     </Button>
-                    <ListBox 
-                        Grid.Row="2" 
-                        Grid.Column="0" 
-                        ItemsSource="{Binding DataAcquisitionSettings}"
-                        SelectedItem="{Binding SelectedSetting, Mode=TwoWay}">
-                    </ListBox>
-                    <Grid Grid.Row="2" Grid.Column="2">
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ListBox 
+                            Grid.Row="0" 
+                            Grid.Column="0" 
+                            ItemsSource="{Binding DataAcquisitionSettings}"
+                            SelectedItem="{Binding SelectedSetting, Mode=TwoWay}">
+                        </ListBox>
+                        <Button
+                            Grid.Row="2" 
+                            Grid.Column="0">
+                            <Button.Style>
+                                <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
+                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartCollecting}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button
+                            Grid.Row="2" 
+                            Grid.Column="2">
+                        </Button>
+                    </Grid>
+                    <Grid Grid.Row="2">
                     </Grid>
                 </Grid>
             </Grid>

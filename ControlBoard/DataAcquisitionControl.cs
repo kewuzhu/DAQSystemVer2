@@ -10,35 +10,31 @@ namespace DAQSystem.DataAcquisition
     {
         public event EventHandler<List<byte>> MsgReceived;
 
-        private const int MIN_QUERY_INTERVAL = 100;   // ms
         private readonly byte[] RECV_HEAD = new byte[] { 0xAA, 0xBB, 0x00, 0x00 };
         private readonly byte[] RECV_TAIL = new byte[]{ 0xEE, 0xFF };
 
         public bool IsInitialized { get; private set; }
 
-        public void Initialize(SerialConfiguration serialconfig, int queryInterval = MIN_QUERY_INTERVAL)
+        public void Initialize(SerialConfiguration serialconfig)
         {
-            if (queryInterval < MIN_QUERY_INTERVAL)
-                throw new ArgumentException($"{nameof(queryInterval)} must be greater or equal to {MIN_QUERY_INTERVAL}.");
-
             var comPort = serialconfig.SerialPort;
+            var baudrate = serialconfig.Baudrate;
 
             if (IsInitialized)
             {
                 if (comPort != comPort_)
                     throw new InvalidOperationException("Already initialized with a different port.");
 
-                queryInterval_ = queryInterval;
                 return;
             }
 
             comPort_ = comPort;
-            queryInterval_ = queryInterval;
-            serialPort_ = new SerialPort(comPort_, serialconfig.Baudrate, Parity.None, 8, StopBits.One);
+            serialPort_ = new SerialPort(comPort_, baudrate, Parity.None, 8, StopBits.One);
             serialPort_.Open();
             serialPort_.DiscardInBuffer();
             serialPort_.DiscardOutBuffer();
             serialPort_.DataReceived += OnDataReceived;
+
             IsInitialized = true;
         }
 
@@ -102,6 +98,5 @@ namespace DAQSystem.DataAcquisition
 
         private SerialPort serialPort_;
         private string comPort_;
-        private int queryInterval_;
     }
 }

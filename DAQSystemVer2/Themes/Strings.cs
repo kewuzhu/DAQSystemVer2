@@ -9,5 +9,9 @@
         public const string Yes = "DAQSystem.Common.Yes";
 
         public const string Error = "DAQSystem.Application.Error";
+        public const string StartCollecting = "DAQSystem.Application.StartCollecting";
+        public const string StartSerialCommunication = "DAQSystem.Application.StartSerialCommunication";
+        public const string StopAndReset = "DAQSystem.Application.StopAndReset";
+        public const string StopSerialCommunication = "DAQSystem.Application.StopSerialCommunication";
     }
 }

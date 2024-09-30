@@ -28,5 +28,9 @@
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
+    <system:String x:Key="DAQSystem.Application.StartCollecting">开始采集</system:String>
+    <system:String x:Key="DAQSystem.Application.StartSerialCommunication">开始通信</system:String>
+    <system:String x:Key="DAQSystem.Application.StopAndReset">停止并复位</system:String>
+    <system:String x:Key="DAQSystem.Application.StopSerialCommunication">停止通信</system:String>
 
 </ResourceDictionary>

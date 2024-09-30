@@ -10,4 +10,8 @@
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
+    <system:String x:Key="DAQSystem.Application.StartCollecting">Start Collecting</system:String>
+    <system:String x:Key="DAQSystem.Application.StartSerialCommunication">Start Serial Communication</system:String>
+    <system:String x:Key="DAQSystem.Application.StopAndReset">Stop And Reset</system:String>
+    <system:String x:Key="DAQSystem.Application.StopSerialCommunication">Stop Serial Communication</system:String>
 </ResourceDictionary>
