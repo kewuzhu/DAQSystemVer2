@@ -1,18 +1,40 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
 using DAQSystem.DataAcquisition;
-using DAQSystem.Application.Model;
 using NLog;
 using OxyPlot;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.IO;
 
 namespace DAQSystem.Application.UI
 {
     internal partial class MainWindowViewModel : ObservableObject
     {
+        private const string DEFAULT_DIR_NAME = "DAQSystem";
+
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
+
+        public ObservableCollection<CommandControl> SettingCommands { get; } = new()
+            {
+                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, IsModified = false, Value = 2000000 } },
+                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, IsModified = false, Value = 8191 } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, IsModified = false, Value = 1 } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, IsModified = false, Value = 1050 } },
+                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, IsModified = false, Value = 100 } },
+                { new CommandControl() { CommandType = CommandTypes.SetGain, IsModified = false, Value = 1340 } }
+            };
+
+        [ObservableProperty]
+        private string workingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), DEFAULT_DIR_NAME);
+
+        [ObservableProperty]
+        private bool isAnimationPlaying;
 
         [ObservableProperty]
         private AppStatus currentStatus;
@@ -22,6 +44,18 @@ namespace DAQSystem.Application.UI
 
         [ObservableProperty]
         private PlotModel plotModel;
+
+        [RelayCommand]
+        private void SelectDirectory()
+        {
+            var dialog = new FolderBrowserDialog();
+            var result = dialog.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                WorkingDirectory = dialog.SelectedPath;
+            }
+        }
 
         [RelayCommand]
         private void ToggleConnect()
@@ -48,11 +82,25 @@ namespace DAQSystem.Application.UI
 
         }
 
+        [RelayCommand]
+        private void StartCollecting()
+        {
+            CurrentStatus = AppStatus.Collecting;
+        }
+
+        [RelayCommand]
+        private void StopAndReset()
+        {
+            CurrentStatus = AppStatus.Connected;
+        }
+
         public MainWindowViewModel(SerialConfiguration serialConfig)
         {
             serialConfig_ = serialConfig ?? throw new ArgumentNullException(nameof(serialConfig));
 
             CurrentStatus = AppStatus.Idle;
+            SelectedSetting = DataAcquisitionSettings.First();
+
             InitializePlot();
         }
 
@@ -96,8 +144,32 @@ namespace DAQSystem.Application.UI
 
         }
 
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+
+            switch (e.PropertyName)
+            {
+                case nameof(SelectedSetting):
+                    IsAnimationPlaying = true;
+                    break;
+            }
+        }
+
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
-        private readonly DataAcquisitionControl dataAcquisitionControl_ = new();
+        private readonly DataAcquisitionControl daq_ = new();
+
+        public partial class CommandControl : ObservableObject
+        {
+            [ObservableProperty]
+            private CommandTypes commandType;
+
+            [ObservableProperty]
+            private bool isModified;
+
+            [ObservableProperty]
+            private int value;
+        }
     }
 }

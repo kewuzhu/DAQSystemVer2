@@ -4,8 +4,15 @@
     <Color x:Key="DAQSystem.WindowBackgroundColor">#252526</Color>
     <Color x:Key="DAQSystem.AccentColor">#1ba1e2</Color>
 
+    <SolidColorBrush x:Key="DAQSystem.Accent">#1ba1e2</SolidColorBrush>
     <SolidColorBrush x:Key="DAQSystem.DefaultForegroundColor">#d1d1d1</SolidColorBrush>
-    
+    <SolidColorBrush x:Key="DAQSystem.Red">#FF0000</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.LightRed">#FF5555</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.DarkRed">#9B0000</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.Green">#00FF00</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.LightGreen">#55FF55</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.DarkGreen">#009B00</SolidColorBrush>
+
     <SolidColorBrush x:Key="DAQSystem.ButtonBackground" Color="#333333" />
     <SolidColorBrush x:Key="DAQSystem.ButtonBackgroundHover" Color="#3e3e42" />
     <SolidColorBrush x:Key="DAQSystem.ButtonBackgroundPressed" Color="{DynamicResource DAQSystem.AccentColor}" />

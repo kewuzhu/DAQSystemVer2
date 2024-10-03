@@ -167,7 +167,7 @@
                             <Setter Property="Foreground" Value="{DynamicResource DAQSystem.ButtonTextPressed}"/>
                         </Trigger>
                         <Trigger Property="IsFocused" Value="true">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource DAQSystem.AcentColor}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource DAQSystem.Accent}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

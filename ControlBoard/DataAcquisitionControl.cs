@@ -83,7 +83,7 @@ namespace DAQSystem.DataAcquisition
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly Dictionary<CommandTypes, byte[]> commandHeaderLut_ = new()
         {
-            { CommandTypes.ResetAndStop, new byte[]{0x00, 0x00} },
+            { CommandTypes.StopAndReset, new byte[]{0x00, 0x00} },
             { CommandTypes.StartToCollect, new byte[]{0x00, 0x01} },
             { CommandTypes.SetCollectDuration, new byte[]{0x00, 0x02} },
             { CommandTypes.SetInitialThreshold, new byte[]{0x11, 0x10} },

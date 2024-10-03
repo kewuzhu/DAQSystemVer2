@@ -2,7 +2,7 @@
 {
     public enum CommandTypes
     {
-        ResetAndStop,
+        StopAndReset,
         StartToCollect,
         SetCollectDuration,
         SetInitialThreshold,

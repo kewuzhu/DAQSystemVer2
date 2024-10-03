@@ -1,5 +1,5 @@
 {
-  "Language": 0,
+  "Language": 1,
   "ConsoleLoggerLogLevel": 31,
   "WorkingDirectory": "DAQSystem",
   "SerialConfiguration": {
