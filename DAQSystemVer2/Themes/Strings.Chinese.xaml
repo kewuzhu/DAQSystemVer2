@@ -27,6 +27,7 @@
     <system:String x:Key="DAQSystem.Common.Title">多道系统</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
+    <system:String x:Key="DAQSystem.Application.ChangePath">更改路径</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">采集时间</system:String>
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">增益值</system:String>

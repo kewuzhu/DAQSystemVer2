@@ -58,14 +58,14 @@ namespace DAQSystem.Application.UI
         }
 
         [RelayCommand]
-        private void ToggleConnect()
+        private async Task ToggleConnect()
         {
             try
             {
                 if (CurrentStatus == AppStatus.Idle)
                 {
                     CurrentStatus = AppStatus.Connected;
-                    //dataAcquisitionControl_.Initialize(serialConfig_);
+                    //await daq_.Initialize(serialConfig_);
                 }
                 else
                 {

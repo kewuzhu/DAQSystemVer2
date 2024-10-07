@@ -9,6 +9,7 @@
     <system:String x:Key="DAQSystem.Common.Title">DAQSystem</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
+    <system:String x:Key="DAQSystem.Application.ChangePath">Change Path</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">Collect Duration</system:String>
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">Gain</system:String>

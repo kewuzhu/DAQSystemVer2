@@ -3,11 +3,14 @@ using DAQSystem.Application.Themes;
 using DAQSystem.Application.UI;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Utility;
+using DAQSystem.DataAcquisition;
 using NLog;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Markup;
 
 namespace DAQSystem.Application
 {
@@ -31,6 +34,16 @@ namespace DAQSystem.Application
 
                 InitializeLogging();
 
+                byte[] bytes = {
+            0xAA, 0xBB, 0x00, 0x00, 0x00, 0x01, 0xEE, 0xFF,
+            0xAA, 0xBB, 0x00, 0x00, 0x01, 0x02, 0xEE, 0xFF,
+            0xAA, 0xBB, 0x00, 0x00, 0x00, 0x03, 0xEE, 0xFF
+        };
+
+                int[] result = ParseBytes(bytes);
+
+                Console.WriteLine(string.Join(", ", result)); // 输出: 1, 2, 3
+
                 var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(APP_CONFIG_FILE_PATH));
                 appConfig.WorkingDirectory = Path.Combine(ROOT_DIRECTORY, appConfig.WorkingDirectory);
 
@@ -47,6 +60,31 @@ namespace DAQSystem.Application
             {
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Critical);
             }
+        }
+
+        public static int[] ParseBytes(byte[] bytes)
+        {
+            // 1. 将字节数组转换为十六进制字符串
+            string hexString = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+
+            // 2. 去掉指定的子串 "aabb0000" 和 "eeff"
+            hexString = hexString.Replace("aabb0000", "").Replace("eeff", "");
+
+            // 3. 将剩余的字节每两个字符合并为一个int
+            List<int> result = new List<int>();
+
+            for (int i = 0; i < hexString.Length; i += 4)
+            {
+                // 确保我们有足够的字符形成一个完整的字节
+                if (i + 1 < hexString.Length)
+                {
+                    string byteString = hexString.Substring(i, 4); // 获取两个字符
+                    var value = Convert.ToInt32(byteString, 16);   // 转换为字节
+                    result.Add(value); // 添加到结果列表
+                }
+            }
+
+            return result.ToArray();
         }
 
         private void InitializeLogging()

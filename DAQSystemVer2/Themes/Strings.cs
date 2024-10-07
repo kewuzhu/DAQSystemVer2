@@ -8,6 +8,7 @@
         public const string Title = "DAQSystem.Common.Title";
         public const string Yes = "DAQSystem.Common.Yes";
 
+        public const string ChangePath = "DAQSystem.Application.ChangePath";
         public const string CollectDuration = "DAQSystem.Application.CollectDuration";
         public const string Error = "DAQSystem.Application.Error";
         public const string Gain = "DAQSystem.Application.Gain";

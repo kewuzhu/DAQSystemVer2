@@ -1,41 +1,49 @@
 ﻿using DAQSystem.Common.Model;
 using DAQSystem.Common.Utility;
 using NLog;
+using System.Diagnostics;
 using System.IO.Ports;
-using System.Text;
+using System.Reflection.Metadata;
 
 namespace DAQSystem.DataAcquisition
 {
     public class DataAcquisitionControl : SyncContextAwareObject
     {
-        public event EventHandler<List<byte>> MsgReceived;
+        public event EventHandler<int> DataReceived;
 
-        private readonly byte[] RECV_HEAD = new byte[] { 0xAA, 0xBB, 0x00, 0x00 };
-        private readonly byte[] RECV_TAIL = new byte[]{ 0xEE, 0xFF };
+        private const string SUCCESS_RESPOND = "DONE";
+        private const string DATA_HEAD = "AABB00";
+        private const string DATA_TAIL = "EEFF";
 
         public bool IsInitialized { get; private set; }
 
-        public void Initialize(SerialConfiguration serialconfig)
+        public async Task Initialize(SerialConfiguration serialconfig)
         {
-            var comPort = serialconfig.SerialPort;
-            var baudrate = serialconfig.Baudrate;
-
             if (IsInitialized)
             {
-                if (comPort != comPort_)
+                if (serialconfig.SerialPort != comPort_)
                     throw new InvalidOperationException("Already initialized with a different port.");
 
                 return;
             }
 
-            comPort_ = comPort;
-            serialPort_ = new SerialPort(comPort_, baudrate, Parity.None, 8, StopBits.One);
-            serialPort_.Open();
-            serialPort_.DiscardInBuffer();
-            serialPort_.DiscardOutBuffer();
-            serialPort_.DataReceived += OnDataReceived;
+            await EnableSerialPort(serialconfig);
 
             IsInitialized = true;
+        }
+
+        private async Task EnableSerialPort(SerialConfiguration serialconfig)
+        {
+            comPort_ = serialconfig.SerialPort;
+            serialPort_ = new SerialPort(comPort_, serialconfig.Baudrate, Parity.None, 8, StopBits.One);
+
+            await Task.Run(() =>
+            {
+                serialPort_.Open();
+                serialPort_.DiscardInBuffer();
+                serialPort_.DiscardOutBuffer();
+                serialPort_.DataReceived += OnDataReceived;
+            });
         }
 
         public void Uninitialize()
@@ -47,51 +55,96 @@ namespace DAQSystem.DataAcquisition
             serialPort_.Close();
         }
 
-        public void WriteCommand(CommandTypes cmd, string data)
+        public async Task<List<int>> WriteCollectCommand(int timeout)
         {
-            var command = BuildCommand(cmd, data);
-            serialPort_.Write(command.ToArray(), 0, command.Count);
+            var command = BuildCommand(CommandTypes.StartToCollect, 0);
+            serialPort_.Write(command, 0, command.Length);
+
+            List<int> data = new();
+            const int eventWaitTime = 100;  // ms
+
+            await Task.Run(() =>
+            {
+                var sw = Stopwatch.StartNew();
+                do
+                {
+                    replyReceived_.WaitOne();
+                    lock (readBuffer_) 
+                    {
+                        data.AddRange(ParseBytes(readBuffer_.ToArray()));
+                        readBuffer_.Clear();
+                    }
+
+                } while (sw.ElapsedMilliseconds < (timeout + eventWaitTime));
+                sw.Stop();
+                logger_.Debug($"Collect Time: {sw.ElapsedMilliseconds} ms)");
+            });
+            return data;
         }
 
-        private List<byte> BuildCommand(CommandTypes cmd, string data)
+        public void WriteStopAndResetCommand()
         {
-            const int dataLength = 6;
-            if (data.Length > dataLength)
-                throw new ArgumentException($"Data length must be less or equal to {dataLength}.");
+            var command = BuildCommand(CommandTypes.StopAndReset, 0);
+            serialPort_.Write(command, 0, command.Length);
+        }
 
-            var command = new List<byte>(commandHeaderLut_[cmd]);
-            var bytes = Encoding.ASCII.GetBytes(data).ToList();
-            bytes.AddRange(new byte[dataLength - data.Length]);
-            command.AddRange(bytes);
-            return command;
+        public async Task<bool> WriteSettingCommand(CommandTypes cmd, int parameter)
+        {
+            var command = BuildCommand(cmd, parameter);
+            serialPort_.Write(command, 0, command.Length);
+            return await GetSettingResponse();
+        }
+
+        private byte[] BuildCommand(CommandTypes cmd, int parameter) => BitConverter.GetBytes((short)cmd)
+                                                                            .Reverse()
+                                                                            .Concat(BitConverter.GetBytes(parameter).Reverse())
+                                                                            .ToArray();
+
+        private async Task<bool> GetSettingResponse()
+        {
+            return await Task.Run(() =>
+            {
+                replyReceived_.WaitOne();
+                lock (readBuffer_)
+                {
+                    var response = new List<byte>(readBuffer_);
+                    readBuffer_.Clear();
+                    return IsSettingResponseValid(response);
+                }
+            });
+        }
+
+        private bool IsSettingResponseValid(List<byte> response) => BitConverter.ToString(response.ToArray()).Replace("-", "") == SUCCESS_RESPOND;
+
+        private List<int> ParseBytes(byte[] bytes)
+        {
+            List<int> data = new();
+
+            string hexString = BitConverter.ToString(bytes).Replace("-", "").Replace(DATA_HEAD, "").Replace(DATA_TAIL, "");
+            for (int i = 0; i < hexString.Length; i += 4)
+            {
+                if (i + 1 < hexString.Length)
+                {
+                    string byteString = hexString.Substring(i, 4);
+                    data.Add(Convert.ToInt32(byteString, 16));
+                }
+            }
+            return data;
         }
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int bytesToRead = serialPort_.BytesToRead;
-            byte[] buffer = new byte[bytesToRead];
-            serialPort_.Read(buffer, 0, bytesToRead);
-
-            readBuffer_.AddRange(buffer);
-            if (readBuffer_.TakeLast(2) == RECV_TAIL)
+            lock (readBuffer_)
             {
-                MsgReceived?.Invoke(this, buffer.ToList());
+                int bytesToRead = serialPort_.BytesToRead;
+                byte[] buffer = new byte[bytesToRead];
+                serialPort_.Read(buffer, 0, bytesToRead);
+                readBuffer_.AddRange(buffer);
                 replyReceived_.Set();
             }
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
-        private readonly Dictionary<CommandTypes, byte[]> commandHeaderLut_ = new()
-        {
-            { CommandTypes.StopAndReset, new byte[]{0x00, 0x00} },
-            { CommandTypes.StartToCollect, new byte[]{0x00, 0x01} },
-            { CommandTypes.SetCollectDuration, new byte[]{0x00, 0x02} },
-            { CommandTypes.SetInitialThreshold, new byte[]{0x11, 0x10} },
-            { CommandTypes.SetSignalSign, new byte[]{0x11, 0x12} },
-            { CommandTypes.SetSignalBaseline, new byte[]{0x11, 0x13} },
-            { CommandTypes.SetTimeInterval, new byte[]{0x11, 0x14} },
-            { CommandTypes.SetGain, new byte[]{0x11, 0x16} },
-        };
 
         private readonly List<byte> readBuffer_ = new();
         private readonly AutoResetEvent replyReceived_ = new(false);

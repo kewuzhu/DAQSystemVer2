@@ -40,7 +40,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition />
+                <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
@@ -62,7 +62,7 @@
                 <Button
                     Grid.Column="4"
                     Command="{Binding SelectDirectoryCommand}"
-                    Content="..." />
+                    Content="{StaticResource DAQSystem.Application.ChangePath}" />
             </Grid>
         </Grid>
         <Grid Grid.Row="2">
