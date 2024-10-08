@@ -35,6 +35,7 @@
     <system:String x:Key="DAQSystem.Application.Negative">负信号</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">参数</system:String>
     <system:String x:Key="DAQSystem.Application.Positive">正信号</system:String>
+    <system:String x:Key="DAQSystem.Application.SaveFileToPathMessageFormat">文件已保存至路径:{0}</system:String>
     <system:String x:Key="DAQSystem.Application.Set">设置</system:String>
     <system:String x:Key="DAQSystem.Application.SignalBaseline">信号基线</system:String>
     <system:String x:Key="DAQSystem.Application.SignalSign">信号极性</system:String>

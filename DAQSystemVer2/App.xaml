@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Themes/Colors.xaml" />
                 <ResourceDictionary Source="Themes/Constants.xaml" />
                 <ResourceDictionary Source="Themes/ListView.xaml" />
+                <ResourceDictionary Source="Themes/ProgressBar.xaml" />
                 <ResourceDictionary Source="Themes/RadioButton.xaml" />
                 <ResourceDictionary Source="Themes/TextBlock.xaml" />
                 <ResourceDictionary Source="Themes/TextBox.xaml" />

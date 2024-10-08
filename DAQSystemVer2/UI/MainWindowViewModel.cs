@@ -4,6 +4,7 @@ using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
+using DAQSystem.Common.Utility;
 using DAQSystem.DataAcquisition;
 using NLog;
 using OxyPlot;
@@ -79,7 +80,7 @@ namespace DAQSystem.Application.UI
                 }
                 else
                 {
-                    daq_.Uninitialize();
+                    await daq_.Uninitialize();
                     CurrentStatus = AppStatus.Idle;
                 }
 
@@ -97,8 +98,7 @@ namespace DAQSystem.Application.UI
         {
             try
             {
-                rawData_.Clear();
-                plotData_.Points.Clear();
+                ResetAllData();
                 CurrentStatus = AppStatus.Collecting;
 
                 foreach (var cmd in SettingCommands)
@@ -106,8 +106,8 @@ namespace DAQSystem.Application.UI
                     await daq_.WriteCommand(cmd.CommandType, cmd.Value);
                 }
 
-                var duration = SettingCommands.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration).Value;
-                await daq_.WriteCommand(CommandTypes.StartToCollect, (duration / 100));
+                var duration = SettingCommands?.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration)?.Value;
+                await daq_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
                 CurrentStatus = AppStatus.Connected;
                 WriteDataToCsv();
             }
@@ -124,13 +124,18 @@ namespace DAQSystem.Application.UI
             try
             {
                 await daq_.WriteCommand(CommandTypes.StopAndReset);
-                rawData_.Clear();
-                plotData_.Points.Clear();
+                ResetAllData();
             }
             catch (Exception ex)
             {
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
+        }
+
+        private void ResetAllData() 
+        {
+            rawData_.Clear();
+            plotData_.Points.Clear();
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig)
@@ -221,7 +226,7 @@ namespace DAQSystem.Application.UI
                             plotData_.Points.Add(adcCountPair);
                         }
                     }
-                    plotModel.InvalidatePlot(true);
+                    PlotModel.InvalidatePlot(true);
                 }
             });
         }
@@ -256,8 +261,7 @@ namespace DAQSystem.Application.UI
                     writer.WriteLine($"{kvp.Key},{kvp.Value}");
                 }
             }
-
-            logger_.Info($"raw data has been saved to {csvFilePath}");
+            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat),csvFilePath)}", MessageType.Info);
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();

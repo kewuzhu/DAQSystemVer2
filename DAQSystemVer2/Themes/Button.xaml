@@ -109,13 +109,13 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource LinkButtonTextHover}"/>
+                <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LinkButtonTextHover}"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource LinkButtonTextPressed}" />
+                <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LinkButtonTextPressed}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Foreground" Value="{DynamicResource LinkButtonTextDisabled}" />
+                <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LinkButtonTextDisabled}" />
             </Trigger>
         </Style.Triggers>
     </Style>

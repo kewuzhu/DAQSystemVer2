@@ -2,6 +2,7 @@
 using DAQSystem.Common.Utility;
 using NLog;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Ports;
 
 namespace DAQSystem.DataAcquisition
@@ -100,8 +101,11 @@ namespace DAQSystem.DataAcquisition
                     
                     lock (readBuffer_)
                     {
-                        ParseBytes(readBuffer_.ToArray());
-                        readBuffer_.Clear();
+                        if (readBuffer_.Count != 0) 
+                        {
+                            ParseBytes(readBuffer_.ToArray());
+                            readBuffer_.Clear();
+                        }
                     }
 
                 } while (sw.ElapsedMilliseconds < (timeout + EVENT_WAIT_TIME));
@@ -152,8 +156,10 @@ namespace DAQSystem.DataAcquisition
 
             foreach (string part in parts)
             {
-                var temp = Convert.ToInt32(part, 16);
-                dataList.Add(temp);
+                if (int.TryParse(part, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var temp))
+                    dataList.Add(temp);
+                else
+                    logger_.Warn($"Failed to parse hex value {part} to int.");
             }
             FilteredDataReceived?.Invoke(this, dataList);
         }

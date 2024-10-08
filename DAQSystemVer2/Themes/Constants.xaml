@@ -85,5 +85,8 @@
 
     <CornerRadius x:Key="DAQSystem.DefaultCornerRadius">10</CornerRadius>
     <CornerRadius x:Key="DAQSystem.ButtonCornerRadius">5</CornerRadius>
+    <CornerRadius x:Key="DAQSystem.CloseButtonWidth">40</CornerRadius>
+    <CornerRadius x:Key="DAQSystem.SystemButtonHeight">35</CornerRadius>
+    <CornerRadius x:Key="DAQSystem.SystemButtonWidth">40</CornerRadius>
 
 </ResourceDictionary>
