@@ -101,30 +101,45 @@ namespace DAQSystem.Application.UI
         [RelayCommand]
         private async Task StartCollecting()
         {
-            rawData_.Clear();
-            plotData_.Points.Clear();
-            CurrentStatus = AppStatus.Collecting;
-
-            foreach (var cmd in SettingCommands)
+            try 
             {
-                if (cmd.IsModified)
+                rawData_.Clear();
+                plotData_.Points.Clear();
+                CurrentStatus = AppStatus.Collecting;
+
+                foreach (var cmd in SettingCommands)
                 {
-                    await daq_.WriteCommand(cmd.CommandType, cmd.Value);
-                    cmd.IsModified = false;
+                    if (cmd.IsModified)
+                    {
+                        await daq_.WriteCommand(cmd.CommandType, cmd.Value);
+                        cmd.IsModified = false;
+                    }
                 }
+                var duration = SettingCommands.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration).Value;
+                await daq_.WriteCommand(CommandTypes.StartToCollect, (duration / 100));
+                CurrentStatus = AppStatus.Connected;
+                WriteDataToCsv();
             }
-            var duration = SettingCommands.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration).Value;
-            await daq_.WriteCommand(CommandTypes.StartToCollect, (duration / 100));
-            CurrentStatus = AppStatus.Connected;
-            WriteDataToCsv();
+            catch (Exception ex)
+            {
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Warning);
+            }
+
         }
 
         [RelayCommand (AllowConcurrentExecutions = true)]
         private async Task StopAndReset()
         {
-            await daq_.WriteCommand(CommandTypes.StopAndReset);
-            rawData_.Clear();
-            plotData_.Points.Clear();
+            try 
+            {
+                await daq_.WriteCommand(CommandTypes.StopAndReset);
+                rawData_.Clear();
+                plotData_.Points.Clear();
+            }
+            catch (Exception ex)
+            {
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Warning);
+            }
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig)
@@ -227,6 +242,9 @@ namespace DAQSystem.Application.UI
         private void WriteDataToCsv()
         {
             Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+
+            if (!Directory.Exists(WorkingDirectory))
+                Directory.CreateDirectory(WorkingDirectory);
 
             string csvFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}output.csv");
 
