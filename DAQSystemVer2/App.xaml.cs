@@ -41,21 +41,6 @@ namespace DAQSystem.Application
 
                 Theme.AddStringsDictionary(appConfig.Language);
 
-                logger_.Info("Initialize");
-                await daq_.Initialize(appConfig.SerialConfiguration);
-
-                var duration = 200000;
-                logger_.Info($"SetCollectDuration to {duration}us");
-                await daq_.WriteSettingCommand(CommandTypes.SetCollectDuration, duration);
-
-                logger_.Info($"Start to collect data");
-                var data = await daq_.WriteCollectCommand(duration / 100);
-
-                logger_.Info($"{string.Join(", ", data)}");
-
-                logger_.Info($"Uninitialize");
-                daq_.Uninitialize();
-
                 mainWindowViewModel_ = new MainWindowViewModel(appConfig.SerialConfiguration);
                 MainWindow = new MainWindow { DataContext = mainWindowViewModel_ };
 

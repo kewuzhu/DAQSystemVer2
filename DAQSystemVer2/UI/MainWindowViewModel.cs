@@ -62,6 +62,22 @@ namespace DAQSystem.Application.UI
         {
             try
             {
+                logger_.Info("Initialize");
+                await daq_.Initialize(serialConfig_);
+
+                foreach (var cmd in SettingCommands) 
+                {
+                    logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
+                    await daq_.WriteSettingCommand(cmd.CommandType, cmd.Value);
+                }
+
+                logger_.Info($"Start to collect data");
+                var data = await daq_.WriteCollectCommand(2000000 / 100);
+                logger_.Info($"{string.Join(", ", data)}");
+
+                logger_.Info($"Uninitialize");
+                daq_.Uninitialize();
+
                 if (CurrentStatus == AppStatus.Idle)
                 {
                     CurrentStatus = AppStatus.Connected;

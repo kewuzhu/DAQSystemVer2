@@ -119,16 +119,15 @@ namespace DAQSystem.DataAcquisition
         {
             List<int> data = new();
 
-            string hexString = BitConverter.ToString(bytes).Replace("-", "").Replace(DATA_HEAD, "").Replace(DATA_TAIL, "");
-            for (int i = 0; i < hexString.Length; i += 4)
+            string hexString = BitConverter.ToString(bytes).Replace("-", "").Replace(DATA_HEAD, "").Replace(DATA_TAIL, " ");
+            string[] parts = hexString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string part in parts)
             {
-                if (i + 1 < hexString.Length)
-                {
-                    string byteString = hexString.Substring(i, 4);
-                    data.Add(Convert.ToInt32(byteString, 16));
-                    FilteredDataReceived?.Invoke(this, Convert.ToInt32(byteString, 16));
-                }
+                var temp = Convert.ToInt32(part, 16);
+                data.Add(temp);
             }
+
             return data;
         }
 
