@@ -196,6 +196,7 @@ namespace DAQSystem.Application.UI
                 plotData_.Points.Add(adcCountPair);
                 plotData_.Points.Remove(pointToUpdate);
             }
+            plotModel.InvalidatePlot(true);
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
