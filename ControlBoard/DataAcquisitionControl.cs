@@ -3,13 +3,12 @@ using DAQSystem.Common.Utility;
 using NLog;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Reflection.Metadata;
 
 namespace DAQSystem.DataAcquisition
 {
     public class DataAcquisitionControl : SyncContextAwareObject
     {
-        public event EventHandler<int> DataReceived;
+        public event EventHandler<int> FilteredDataReceived;
 
         private const string SUCCESS_RESPOND = "DONE";
         private const string DATA_HEAD = "AABB00";
@@ -127,6 +126,7 @@ namespace DAQSystem.DataAcquisition
                 {
                     string byteString = hexString.Substring(i, 4);
                     data.Add(Convert.ToInt32(byteString, 16));
+                    FilteredDataReceived?.Invoke(this, Convert.ToInt32(byteString, 16));
                 }
             }
             return data;
