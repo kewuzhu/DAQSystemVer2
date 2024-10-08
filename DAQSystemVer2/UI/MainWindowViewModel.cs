@@ -18,6 +18,12 @@ namespace DAQSystem.Application.UI
     internal partial class MainWindowViewModel : ObservableObject
     {
         private const string DEFAULT_DIR_NAME = "DAQSystem";
+        private const int DEFAULT_COLLECTION_DURATION = 100000;
+        private const int DEFAULT_INITIAL_THRESHOLD = 0;
+        private const int DEFAULT_SIGNAL_SIGN = 1;
+        private const int DEFAULT_SIGNAL_BASELINE = 1050;
+        private const int DEFAULT_TIME_INTERVAL = 1000;
+        private const int DEFAULT_GAIN = 1340;
 
         private readonly OxyColor DEFAULT_COLOR = OxyColor.FromRgb(211, 211, 211);
 
@@ -25,12 +31,12 @@ namespace DAQSystem.Application.UI
 
         public ObservableCollection<CommandControl> SettingCommands { get; } = new()
             {
-                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, IsModified = false, Value = 2000000 } },
-                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, IsModified = false, Value = 8191 } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, IsModified = false, Value = 1 } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, IsModified = false, Value = 1050 } },
-                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, IsModified = false, Value = 100 } },
-                { new CommandControl() { CommandType = CommandTypes.SetGain, IsModified = false, Value = 1340 } }
+                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, IsModified = false, Value = DEFAULT_COLLECTION_DURATION } },
+                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, IsModified = false, Value = DEFAULT_INITIAL_THRESHOLD } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, IsModified = false, Value = DEFAULT_SIGNAL_SIGN } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, IsModified = false, Value = DEFAULT_SIGNAL_BASELINE } },
+                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, IsModified = false, Value = DEFAULT_TIME_INTERVAL } },
+                { new CommandControl() { CommandType = CommandTypes.SetGain, IsModified = false, Value = DEFAULT_GAIN } }
             };
 
         [ObservableProperty]
@@ -72,7 +78,6 @@ namespace DAQSystem.Application.UI
 
                     foreach (var cmd in SettingCommands)
                     {
-                        logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
                         await daq_.WriteCommand(cmd.CommandType, cmd.Value);
                     }
 
@@ -102,21 +107,24 @@ namespace DAQSystem.Application.UI
 
             foreach (var cmd in SettingCommands)
             {
-                if (cmd.IsModified) 
+                if (cmd.IsModified)
                 {
-                    logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
                     await daq_.WriteCommand(cmd.CommandType, cmd.Value);
                     cmd.IsModified = false;
                 }
             }
-            await daq_.WriteCommand(CommandTypes.StartToCollect);
+            var duration = SettingCommands.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration).Value;
+            await daq_.WriteCommand(CommandTypes.StartToCollect, (duration / 100));
             CurrentStatus = AppStatus.Connected;
+            WriteDataToCsv();
         }
 
-        [RelayCommand]
+        [RelayCommand (AllowConcurrentExecutions = true)]
         private async Task StopAndReset()
         {
             await daq_.WriteCommand(CommandTypes.StopAndReset);
+            rawData_.Clear();
+            plotData_.Points.Clear();
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig)
@@ -165,11 +173,11 @@ namespace DAQSystem.Application.UI
             PlotModel.Axes.Add(xAxis);
             PlotModel.Axes.Add(yAxis);
 
-            plotData_ = new LineSeries
+            plotData_ = new ScatterSeries
             {
-                StrokeThickness = 2,
-                CanTrackerInterpolatePoints = true,
-                Color = DEFAULT_COLOR,
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 1,
+                MarkerFill = DEFAULT_COLOR
             };
 
             PlotModel.Series.Add(plotData_);
@@ -181,22 +189,27 @@ namespace DAQSystem.Application.UI
             await daq_.Uninitialize();
         }
 
-        private void OnFilteredDataReceived(object sender, int data)
+        private async void OnFilteredDataReceived(object sender, int data)
         {
             rawData_.Add(data);
-            if (!plotData_.Points.Any(x => x.X == data))
+            await Task.Run(() =>
             {
-                var adcCountPair = new DataPoint(data, 1);
-                plotData_.Points.Add(adcCountPair);
-            }
-            else 
-            {
-                var pointToUpdate = plotData_.Points.FirstOrDefault(x => x.X == data);
-                var adcCountPair = new DataPoint(data, (pointToUpdate.Y + 1));
-                plotData_.Points.Add(adcCountPair);
-                plotData_.Points.Remove(pointToUpdate);
-            }
-            plotModel.InvalidatePlot(true);
+                lock (plotData_)
+                {
+                    if (!plotData_.Points.Any(x => x.X == data))
+                    {
+                        var adcCountPair = new ScatterPoint(data, 1);
+                        plotData_.Points.Add(adcCountPair);
+                    }
+                    else
+                    {
+                        var pointToUpdate = plotData_.Points.FirstOrDefault(x => x.X == data);
+                        var adcCountPair = new ScatterPoint(data, (pointToUpdate.Y + 1));
+                        plotData_.Points.Add(adcCountPair);
+                    }
+                    plotModel.InvalidatePlot(true);
+                }
+            });
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -211,12 +224,31 @@ namespace DAQSystem.Application.UI
             }
         }
 
+        private void WriteDataToCsv()
+        {
+            Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+
+            string csvFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}output.csv");
+
+            using (var writer = new StreamWriter(csvFilePath))
+            {
+                writer.WriteLine("Key,Value");
+
+                foreach (var kvp in frequencyDictionary)
+                {
+                    writer.WriteLine($"{kvp.Key},{kvp.Value}");
+                }
+            }
+
+            logger_.Info($"raw data has been saved to {csvFilePath}");
+        }
+
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
         private readonly DataAcquisitionControl daq_ = new();
         private readonly List<int> rawData_ = new();
 
-        private LineSeries plotData_;
+        private ScatterSeries plotData_;
 
         public partial class CommandControl : ObservableObject
         {

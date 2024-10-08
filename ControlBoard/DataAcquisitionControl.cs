@@ -13,6 +13,7 @@ namespace DAQSystem.DataAcquisition
         private const string SUCCESS_RESPOND = "444F4E45";
         private const string DATA_HEAD = "AABB00";
         private const string DATA_TAIL = "EEFF";
+        private const int EVENT_WAIT_TIME = 100;  // ms
 
         public bool IsInitialized { get; private set; }
 
@@ -58,6 +59,7 @@ namespace DAQSystem.DataAcquisition
 
         public async Task WriteCommand(CommandTypes cmd, int parameter = 0)
         {
+            logger_.Info($"Command writing: CommandType {cmd} Value {parameter}");
             try
             {
                 await commandLock_.WaitAsync();
@@ -67,10 +69,13 @@ namespace DAQSystem.DataAcquisition
                         WriteStopAndResetCommand();
                         break;
                     case CommandTypes.StartToCollect:
-                        await WriteCollectCommand();
+                        await WriteCollectCommand(parameter);
                         break;
                     default:
-                        await WriteSettingCommand(cmd, parameter);
+                        if (await WriteSettingCommand(cmd, parameter))
+                            logger_.Info($"{cmd} successfully.");
+                        else
+                            logger_.Warn($"{cmd} failed.");
                         break;
                 }
             }
@@ -80,31 +85,30 @@ namespace DAQSystem.DataAcquisition
             }
         }
 
-        private async Task WriteCollectCommand()
+        private async Task WriteCollectCommand(int timeout = 100000)
         {
             var command = BuildCommand(CommandTypes.StartToCollect, 0);
             serialPort_.Write(command, 0, command.Length);
 
-            const int eventWaitTime = 100;  // ms
+            
 
+            logger_.Info("Data collection started.");
             await Task.Run(() =>
             {
                 var sw = Stopwatch.StartNew();
                 do
                 {
-                    if (!sw.IsRunning)
-                        sw.Restart();
-                    replyReceived_.WaitOne(eventWaitTime);
-                    if (sw.ElapsedMilliseconds >= eventWaitTime)
-                        break;
-                    sw.Stop();
+                    replyReceived_.WaitOne(EVENT_WAIT_TIME);
+                    
                     lock (readBuffer_)
                     {
                         ParseBytes(readBuffer_.ToArray());
                         readBuffer_.Clear();
                     }
 
-                } while (true);
+                } while (sw.ElapsedMilliseconds < timeout + EVENT_WAIT_TIME);
+                sw.Stop();
+                logger_.Info("Data collection stopped.");
             });
         }
 
@@ -130,7 +134,7 @@ namespace DAQSystem.DataAcquisition
         {
             return await Task.Run(() =>
             {
-                replyReceived_.WaitOne();
+                replyReceived_.WaitOne(EVENT_WAIT_TIME);
                 lock (readBuffer_)
                 {
                     var response = new List<byte>(readBuffer_);
