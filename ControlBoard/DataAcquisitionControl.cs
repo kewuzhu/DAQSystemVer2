@@ -10,7 +10,7 @@ namespace DAQSystem.DataAcquisition
     {
         public event EventHandler<int> FilteredDataReceived;
 
-        private const string SUCCESS_RESPOND = "DONE";
+        private const string SUCCESS_RESPOND = "444F4E45";
         private const string DATA_HEAD = "AABB00";
         private const string DATA_TAIL = "EEFF";
 
@@ -45,21 +45,46 @@ namespace DAQSystem.DataAcquisition
             });
         }
 
-        public void Uninitialize()
+        public async Task Uninitialize()
         {
             if (!IsInitialized) return;
-
-            serialPort_.DataReceived -= OnDataReceived;
-            IsInitialized = false;
-            serialPort_.Close();
+            await Task.Run(() =>
+            {
+                serialPort_.DataReceived -= OnDataReceived;
+                IsInitialized = false;
+                serialPort_.Close();
+            });
         }
 
-        public async Task<List<int>> WriteCollectCommand(int timeout)
+        public async Task WriteCommand(CommandTypes cmd, int parameter = 0)
+        {
+            try
+            {
+                await commandLock_.WaitAsync();
+                switch (cmd)
+                {
+                    case CommandTypes.StopAndReset:
+                        WriteStopAndResetCommand();
+                        break;
+                    case CommandTypes.StartToCollect:
+                        await WriteCollectCommand();
+                        break;
+                    default:
+                        await WriteSettingCommand(cmd, parameter);
+                        break;
+                }
+            }
+            finally
+            {
+                commandLock_.Release();
+            }
+        }
+
+        private async Task WriteCollectCommand()
         {
             var command = BuildCommand(CommandTypes.StartToCollect, 0);
             serialPort_.Write(command, 0, command.Length);
 
-            List<int> data = new();
             const int eventWaitTime = 100;  // ms
 
             await Task.Run(() =>
@@ -67,27 +92,29 @@ namespace DAQSystem.DataAcquisition
                 var sw = Stopwatch.StartNew();
                 do
                 {
-                    replyReceived_.WaitOne();
-                    lock (readBuffer_) 
+                    if (!sw.IsRunning)
+                        sw.Restart();
+                    replyReceived_.WaitOne(eventWaitTime);
+                    if (sw.ElapsedMilliseconds >= eventWaitTime)
+                        break;
+                    sw.Stop();
+                    lock (readBuffer_)
                     {
-                        data.AddRange(ParseBytes(readBuffer_.ToArray()));
+                        ParseBytes(readBuffer_.ToArray());
                         readBuffer_.Clear();
                     }
 
-                } while (sw.ElapsedMilliseconds < (timeout + eventWaitTime));
-                sw.Stop();
-                logger_.Debug($"Collect Time: {sw.ElapsedMilliseconds} ms)");
+                } while (true);
             });
-            return data;
         }
 
-        public void WriteStopAndResetCommand()
+        private void WriteStopAndResetCommand()
         {
             var command = BuildCommand(CommandTypes.StopAndReset, 0);
             serialPort_.Write(command, 0, command.Length);
         }
 
-        public async Task<bool> WriteSettingCommand(CommandTypes cmd, int parameter)
+        private async Task<bool> WriteSettingCommand(CommandTypes cmd, int parameter)
         {
             var command = BuildCommand(cmd, parameter);
             serialPort_.Write(command, 0, command.Length);
@@ -115,20 +142,16 @@ namespace DAQSystem.DataAcquisition
 
         private bool IsSettingResponseValid(List<byte> response) => BitConverter.ToString(response.ToArray()).Replace("-", "") == SUCCESS_RESPOND;
 
-        private List<int> ParseBytes(byte[] bytes)
+        private void ParseBytes(byte[] bytes)
         {
-            List<int> data = new();
-
             string hexString = BitConverter.ToString(bytes).Replace("-", "").Replace(DATA_HEAD, "").Replace(DATA_TAIL, " ");
             string[] parts = hexString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string part in parts)
             {
                 var temp = Convert.ToInt32(part, 16);
-                data.Add(temp);
+                FilteredDataReceived?.Invoke(this, temp);
             }
-
-            return data;
         }
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -147,6 +170,7 @@ namespace DAQSystem.DataAcquisition
 
         private readonly List<byte> readBuffer_ = new();
         private readonly AutoResetEvent replyReceived_ = new(false);
+        private static readonly SemaphoreSlim commandLock_ = new(1);
 
         private SerialPort serialPort_;
         private string comPort_;

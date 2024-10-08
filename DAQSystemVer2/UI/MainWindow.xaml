@@ -303,7 +303,7 @@
                                             <Setter Property="IsEnabled" Value="True" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
-                                            <Setter Property="IsEnabled" Value="False" />
+                                            <Setter Property="IsEnabled" Value="True" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

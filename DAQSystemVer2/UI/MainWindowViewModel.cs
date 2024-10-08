@@ -7,6 +7,7 @@ using DAQSystem.Common.Model;
 using DAQSystem.DataAcquisition;
 using NLog;
 using OxyPlot;
+using OxyPlot.Series;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -17,6 +18,8 @@ namespace DAQSystem.Application.UI
     internal partial class MainWindowViewModel : ObservableObject
     {
         private const string DEFAULT_DIR_NAME = "DAQSystem";
+
+        private readonly OxyColor DEFAULT_COLOR = OxyColor.FromRgb(211, 211, 211);
 
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
 
@@ -62,30 +65,22 @@ namespace DAQSystem.Application.UI
         {
             try
             {
-                logger_.Info("Initialize");
-                await daq_.Initialize(serialConfig_);
-
-                foreach (var cmd in SettingCommands) 
-                {
-                    logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
-                    await daq_.WriteSettingCommand(cmd.CommandType, cmd.Value);
-                }
-
-                logger_.Info($"Start to collect data");
-                var data = await daq_.WriteCollectCommand(2000000 / 100);
-                logger_.Info($"{string.Join(", ", data)}");
-
-                logger_.Info($"Uninitialize");
-                daq_.Uninitialize();
-
                 if (CurrentStatus == AppStatus.Idle)
                 {
+                    logger_.Info("Initialize serial port");
+                    await daq_.Initialize(serialConfig_);
+
+                    foreach (var cmd in SettingCommands)
+                    {
+                        logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
+                        await daq_.WriteCommand(cmd.CommandType, cmd.Value);
+                    }
+
                     CurrentStatus = AppStatus.Connected;
-                    //await daq_.Initialize(serialConfig_);
                 }
                 else
                 {
-                    //dataAcquisitionControl_.Uninitialize();
+                    daq_.Uninitialize();
                     CurrentStatus = AppStatus.Idle;
                 }
 
@@ -99,15 +94,29 @@ namespace DAQSystem.Application.UI
         }
 
         [RelayCommand]
-        private void StartCollecting()
+        private async Task StartCollecting()
         {
+            rawData_.Clear();
+            plotData_.Points.Clear();
             CurrentStatus = AppStatus.Collecting;
+
+            foreach (var cmd in SettingCommands)
+            {
+                if (cmd.IsModified) 
+                {
+                    logger_.Info($"CommandType:{cmd.CommandType} Value:{cmd.Value}");
+                    await daq_.WriteCommand(cmd.CommandType, cmd.Value);
+                    cmd.IsModified = false;
+                }
+            }
+            await daq_.WriteCommand(CommandTypes.StartToCollect);
+            CurrentStatus = AppStatus.Connected;
         }
 
         [RelayCommand]
-        private void StopAndReset()
+        private async Task StopAndReset()
         {
-            CurrentStatus = AppStatus.Connected;
+            await daq_.WriteCommand(CommandTypes.StopAndReset);
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig)
@@ -117,6 +126,8 @@ namespace DAQSystem.Application.UI
             CurrentStatus = AppStatus.Idle;
             SelectedSetting = DataAcquisitionSettings.First();
 
+            daq_.FilteredDataReceived += OnFilteredDataReceived;
+
             InitializePlot();
         }
 
@@ -124,18 +135,18 @@ namespace DAQSystem.Application.UI
         {
             PlotModel = new PlotModel()
             {
-                PlotAreaBorderColor = OxyColor.FromRgb(211, 211, 211),
+                PlotAreaBorderColor = DEFAULT_COLOR,
                 PlotAreaBorderThickness = new OxyThickness(2),
-                TextColor = OxyColor.FromRgb(211, 211, 211),
-                TitleColor = OxyColor.FromRgb(211, 211, 211),
+                TextColor = DEFAULT_COLOR,
+                TitleColor = DEFAULT_COLOR,
                 DefaultFontSize = 14,
             };
 
             var xAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = OxyColor.FromRgb(211, 211, 211),
-                TicklineColor = OxyColor.FromRgb(211, 211, 211),
+                AxislineColor = DEFAULT_COLOR,
+                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = "ADC Channel",
                 StringFormat = "0"
@@ -144,8 +155,8 @@ namespace DAQSystem.Application.UI
             var yAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = OxyColor.FromRgb(211, 211, 211),
-                TicklineColor = OxyColor.FromRgb(211, 211, 211),
+                AxislineColor = DEFAULT_COLOR,
+                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Left,
                 Title = "Count",
                 StringFormat = "0.0"
@@ -153,11 +164,38 @@ namespace DAQSystem.Application.UI
 
             PlotModel.Axes.Add(xAxis);
             PlotModel.Axes.Add(yAxis);
+
+            plotData_ = new LineSeries
+            {
+                StrokeThickness = 2,
+                CanTrackerInterpolatePoints = true,
+                Color = DEFAULT_COLOR,
+            };
+
+            PlotModel.Series.Add(plotData_);
         }
 
         public async Task CleanUp()
         {
+            daq_.FilteredDataReceived -= OnFilteredDataReceived;
+            await daq_.Uninitialize();
+        }
 
+        private void OnFilteredDataReceived(object sender, int data)
+        {
+            rawData_.Add(data);
+            if (!plotData_.Points.Any(x => x.X == data))
+            {
+                var adcCountPair = new DataPoint(data, 1);
+                plotData_.Points.Add(adcCountPair);
+            }
+            else 
+            {
+                var pointToUpdate = plotData_.Points.FirstOrDefault(x => x.X == data);
+                var adcCountPair = new DataPoint(data, (pointToUpdate.Y + 1));
+                plotData_.Points.Add(adcCountPair);
+                plotData_.Points.Remove(pointToUpdate);
+            }
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -175,6 +213,9 @@ namespace DAQSystem.Application.UI
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
         private readonly DataAcquisitionControl daq_ = new();
+        private readonly List<int> rawData_ = new();
+
+        private LineSeries plotData_;
 
         public partial class CommandControl : ObservableObject
         {
