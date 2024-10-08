@@ -9,7 +9,6 @@ using NLog;
 using OxyPlot;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 
@@ -18,8 +17,8 @@ namespace DAQSystem.Application.UI
     internal partial class MainWindowViewModel : ObservableObject
     {
         private const string DEFAULT_DIR_NAME = "DAQSystem";
-        private const int DEFAULT_COLLECTION_DURATION = 100000;
-        private const int DEFAULT_INITIAL_THRESHOLD = 0;
+        private const int DEFAULT_COLLECTION_DURATION = 20000;
+        private const int DEFAULT_INITIAL_THRESHOLD = 1000;
         private const int DEFAULT_SIGNAL_SIGN = 1;
         private const int DEFAULT_SIGNAL_BASELINE = 1050;
         private const int DEFAULT_TIME_INTERVAL = 1000;
@@ -31,12 +30,12 @@ namespace DAQSystem.Application.UI
 
         public ObservableCollection<CommandControl> SettingCommands { get; } = new()
             {
-                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, IsModified = false, Value = DEFAULT_COLLECTION_DURATION } },
-                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, IsModified = false, Value = DEFAULT_INITIAL_THRESHOLD } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, IsModified = false, Value = DEFAULT_SIGNAL_SIGN } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, IsModified = false, Value = DEFAULT_SIGNAL_BASELINE } },
-                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, IsModified = false, Value = DEFAULT_TIME_INTERVAL } },
-                { new CommandControl() { CommandType = CommandTypes.SetGain, IsModified = false, Value = DEFAULT_GAIN } }
+                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, Value = DEFAULT_COLLECTION_DURATION } },
+                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, Value = DEFAULT_INITIAL_THRESHOLD } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, Value = DEFAULT_SIGNAL_SIGN } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, Value = DEFAULT_SIGNAL_BASELINE } },
+                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, Value = DEFAULT_TIME_INTERVAL } },
+                { new CommandControl() { CommandType = CommandTypes.SetGain, Value = DEFAULT_GAIN } }
             };
 
         [ObservableProperty]
@@ -76,11 +75,6 @@ namespace DAQSystem.Application.UI
                     logger_.Info("Initialize serial port");
                     await daq_.Initialize(serialConfig_);
 
-                    foreach (var cmd in SettingCommands)
-                    {
-                        await daq_.WriteCommand(cmd.CommandType, cmd.Value);
-                    }
-
                     CurrentStatus = AppStatus.Connected;
                 }
                 else
@@ -101,7 +95,7 @@ namespace DAQSystem.Application.UI
         [RelayCommand]
         private async Task StartCollecting()
         {
-            try 
+            try
             {
                 rawData_.Clear();
                 plotData_.Points.Clear();
@@ -109,12 +103,9 @@ namespace DAQSystem.Application.UI
 
                 foreach (var cmd in SettingCommands)
                 {
-                    if (cmd.IsModified)
-                    {
-                        await daq_.WriteCommand(cmd.CommandType, cmd.Value);
-                        cmd.IsModified = false;
-                    }
+                    await daq_.WriteCommand(cmd.CommandType, cmd.Value);
                 }
+
                 var duration = SettingCommands.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration).Value;
                 await daq_.WriteCommand(CommandTypes.StartToCollect, (duration / 100));
                 CurrentStatus = AppStatus.Connected;
@@ -122,15 +113,15 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
 
         }
 
-        [RelayCommand (AllowConcurrentExecutions = true)]
+        [RelayCommand(AllowConcurrentExecutions = true)]
         private async Task StopAndReset()
         {
-            try 
+            try
             {
                 await daq_.WriteCommand(CommandTypes.StopAndReset);
                 rawData_.Clear();
@@ -138,7 +129,7 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
         }
 
@@ -204,23 +195,31 @@ namespace DAQSystem.Application.UI
             await daq_.Uninitialize();
         }
 
-        private async void OnFilteredDataReceived(object sender, int data)
+        private async void OnFilteredDataReceived(object sender, List<int> data)
         {
-            rawData_.Add(data);
+            rawData_.AddRange(data);
+            await UpdatePlot(data);
+        }
+
+        private async Task UpdatePlot(List<int> data)
+        {
             await Task.Run(() =>
             {
                 lock (plotData_)
                 {
-                    if (!plotData_.Points.Any(x => x.X == data))
+                    foreach (int d in data) 
                     {
-                        var adcCountPair = new ScatterPoint(data, 1);
-                        plotData_.Points.Add(adcCountPair);
-                    }
-                    else
-                    {
-                        var pointToUpdate = plotData_.Points.FirstOrDefault(x => x.X == data);
-                        var adcCountPair = new ScatterPoint(data, (pointToUpdate.Y + 1));
-                        plotData_.Points.Add(adcCountPair);
+                        if (!plotData_.Points.Any(x => x.X == d))
+                        {
+                            var adcCountPair = new ScatterPoint(d, 1);
+                            plotData_.Points.Add(adcCountPair);
+                        }
+                        else
+                        {
+                            var pointToUpdate = plotData_.Points.OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
+                            var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
+                            plotData_.Points.Add(adcCountPair);
+                        }
                     }
                     plotModel.InvalidatePlot(true);
                 }
@@ -272,9 +271,6 @@ namespace DAQSystem.Application.UI
         {
             [ObservableProperty]
             private CommandTypes commandType;
-
-            [ObservableProperty]
-            private bool isModified;
 
             [ObservableProperty]
             private int value;
