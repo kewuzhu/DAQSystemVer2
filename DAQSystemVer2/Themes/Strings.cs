@@ -34,6 +34,7 @@
         public const string StopSerialCommunication = "DAQSystem.Application.StopSerialCommunication";
         public const string TimeInterval = "DAQSystem.Application.TimeInterval";
         public const string To = "DAQSystem.Application.To";
+        public const string UpdateToPlot = "DAQSystem.Application.UpdateToPlot";
         public const string Value = "DAQSystem.Application.Value";
         public const string WorkingDirectory = "DAQSystem.Application.WorkingDirectory";
         public const string XValue = "DAQSystem.Application.XValue";

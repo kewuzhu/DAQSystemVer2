@@ -53,6 +53,7 @@
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">停止通信</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">时间门</system:String>
     <system:String x:Key="DAQSystem.Application.To">到</system:String>
+    <system:String x:Key="DAQSystem.Application.UpdateToPlot">更新图表</system:String>
     <system:String x:Key="DAQSystem.Application.Value">值</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">工作路径:</system:String>
     <system:String x:Key="DAQSystem.Application.XValue">X 值</system:String>

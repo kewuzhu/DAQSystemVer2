@@ -35,6 +35,7 @@
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">Stop Serial Communication</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">Time Interval</system:String>
     <system:String x:Key="DAQSystem.Application.To">To</system:String>
+    <system:String x:Key="DAQSystem.Application.UpdateToPlot">Update To Plot</system:String>
     <system:String x:Key="DAQSystem.Application.Value">Value</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">Working Directory:</system:String>
     <system:String x:Key="DAQSystem.Application.XValue">X Value</system:String>

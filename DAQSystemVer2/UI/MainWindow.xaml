@@ -299,11 +299,11 @@
                             Header="{StaticResource DAQSystem.Application.FitGaussian}">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition />
+                                    <RowDefinition Height="2*"/>
                                     <RowDefinition Height="5"/>
-                                    <RowDefinition />
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="5"/>
-                                    <RowDefinition />
+                                    <RowDefinition Height="2*"/>
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <Grid.ColumnDefinitions>
@@ -345,12 +345,14 @@
                                 </Grid>
                                 <Grid Grid.Row="2">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="3*"/>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
                                     <Button
-                                        Grid.Column="1"
-                                        Content="{StaticResource DAQSystem.Application.Calculate}">
+                                        Grid.Column="2"
+                                        Content="{StaticResource DAQSystem.Application.Calculate}"
+                                        Command="{Binding CalculateGaussianCommand}">
                                     </Button>
                                 </Grid>
                                 <Grid Grid.Row="4">

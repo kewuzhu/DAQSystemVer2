@@ -201,7 +201,6 @@ namespace DAQSystem.Application.UI
         private bool CanCalculateGaussian() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
         [RelayCommand(CanExecute = nameof(CanCalculateGaussian))]
-
         private void CalculateGaussian()
         {
             Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
@@ -215,7 +214,7 @@ namespace DAQSystem.Application.UI
 
             IsAnimationPlaying = true;
 
-            var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).ToArray();
+            var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).OrderBy(x => x).ToArray();
             var yData = xData.Select(k => frequencyDictionary[k]).ToArray();
 
             var result = FitGaussian(xData, yData);
@@ -223,6 +222,16 @@ namespace DAQSystem.Application.UI
             GaussianAmplitude = result[0];
             GaussianMean = result[1];
             GaussianSigma = result[2];
+            logger_.Info($"Fit Gaussian result: Amplitude:{GaussianAmplitude}, Mean:{GaussianMean}, Sigma:{GaussianSigma}");
+
+            for (int i = 0; i < xData.Length; i++)
+            {
+                var fittedY = (Gaussian(xData[i], GaussianAmplitude, GaussianMean, GaussianSigma));
+                var adcCountPair = new ScatterPoint(xData[i], fittedY);
+                plotData_.Points.Add(adcCountPair);
+            }
+
+            PlotModel.InvalidatePlot(true);
         }
 
         private void ResetAllData()
