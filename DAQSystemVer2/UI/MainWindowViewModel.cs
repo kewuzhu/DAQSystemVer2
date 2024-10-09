@@ -289,7 +289,7 @@ namespace DAQSystem.Application.UI
 
             using (var stream = new FileStream(pdfFilePath, FileMode.Create))
             {
-                PdfExporter.Export(PlotModel, stream, 600, 400);
+                OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
             }
             UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
