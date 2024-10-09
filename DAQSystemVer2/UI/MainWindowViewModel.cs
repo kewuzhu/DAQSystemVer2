@@ -150,7 +150,7 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
 
         }
@@ -182,7 +182,7 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
 
         }
@@ -200,7 +200,7 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
         }
 
@@ -230,7 +230,7 @@ namespace DAQSystem.Application.UI
             GaussianSigma = result[2];
             logger_.Info($"Fit Gaussian result: Amplitude:{GaussianAmplitude}, Mean:{GaussianMean}, Sigma:{GaussianSigma}");
 
-            fittedPlotData_ = new ScatterSeries
+            fittedPlotData_ ??= new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 2,
@@ -257,7 +257,7 @@ namespace DAQSystem.Application.UI
             rawData_.Clear();
             ProgressCounter = 0;
             plotData_.Points.Clear();
-            fittedPlotData_.Points.Clear();
+            fittedPlotData_?.Points.Clear();
             GaussianAmplitude = 0;
             GaussianMean = 0;
             GaussianSigma = 0;
