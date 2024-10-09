@@ -55,7 +55,9 @@ namespace DAQSystem.Application.UI
         [ObservableProperty]
         private PlotModel plotModel;
 
-        [RelayCommand]
+        private bool CanExportPlotToPdf() => plotData_.Points.Count != 0 && progressCounter_ == rawData_.Count;
+
+        [RelayCommand(CanExecute = nameof(CanExportPlotToPdf))]
         private void ExportPlotToPdf()
         {
             CreateWorkingDirectoryIfNotExists();
@@ -248,11 +250,11 @@ namespace DAQSystem.Application.UI
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
                             plotData_.Points.Add(adcCountPair);
                         }
-                        progressCounter_++;
                     }
                     PlotModel.InvalidatePlot(true);
                 }
             });
+            await App.Current.Dispatcher.BeginInvoke(new Action(() => { progressCounter_ += data.Count; }));
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
