@@ -17,7 +17,7 @@
     <system:String x:Key="DAQSystem.Application.Negative">Negative</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">Parameter</system:String>
     <system:String x:Key="DAQSystem.Application.Positive">Positive</system:String>
-    <system:String x:Key="DAQSystem.Application.SaveCsvToPathMessageFormat">File has been saved to path:{0}</system:String>
+    <system:String x:Key="DAQSystem.Application.SaveFileToPathMessageFormat">File has been saved to path:{0}</system:String>
     <system:String x:Key="DAQSystem.Application.Set">Set</system:String>
     <system:String x:Key="DAQSystem.Application.SignalBaseline">Signal Baseline</system:String>
     <system:String x:Key="DAQSystem.Application.SignalSign">Signal Sign</system:String>

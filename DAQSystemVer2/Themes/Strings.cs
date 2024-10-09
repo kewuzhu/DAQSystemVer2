@@ -16,7 +16,7 @@
         public const string Negative = "DAQSystem.Application.Negative";
         public const string Parameter = "DAQSystem.Application.Parameter";
         public const string Positive = "DAQSystem.Application.Positive";
-        public const string SaveFileToPathMessageFormat = "DAQSystem.Application.SaveCsvToPathMessageFormat";
+        public const string SaveFileToPathMessageFormat = "DAQSystem.Application.SaveFileToPathMessageFormat";
         public const string Set = "DAQSystem.Application.Set";
         public const string SignalBaseline = "DAQSystem.Application.SignalBaseline";
         public const string SignalSign = "DAQSystem.Application.SignalSign";

@@ -281,7 +281,7 @@ namespace DAQSystem.Application.UI
             UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat),csvFilePath)}", MessageType.Info);
         }
 
-        private void ExportPlotToPdf() 
+        private void ExportPlotToPdf()
         {
             CreateWorkingDirectoryIfNotExists();
 
@@ -291,6 +291,7 @@ namespace DAQSystem.Application.UI
             {
                 PdfExporter.Export(PlotModel, stream, 600, 400);
             }
+            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
 
         private void CreateWorkingDirectoryIfNotExists()
