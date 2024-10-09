@@ -29,7 +29,9 @@ namespace DAQSystem.Application.UI
         private const int DEFAULT_TIME_INTERVAL = 1000;
         private const int DEFAULT_GAIN = 1340;
 
-        private readonly OxyColor DEFAULT_COLOR = OxyColor.FromRgb(211, 211, 211);
+        private readonly OxyColor DEFAULT_PLOT_COLOR = OxyColor.FromRgb(211, 211, 211);
+        private readonly OxyColor DEFAULT_FITTED_PLOT_COLOR = OxyColor.FromRgb(255, 0, 0);
+        private readonly OxyColor DEFAULT_OUTPUT_PLOT_COLOR = OxyColor.FromRgb(0, 0, 0);
 
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
 
@@ -99,10 +101,14 @@ namespace DAQSystem.Application.UI
 
             string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
 
+            UpdatePlotColor(DEFAULT_OUTPUT_PLOT_COLOR);
+
             using (var stream = new FileStream(pdfFilePath, FileMode.Create))
             {
                 OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
             }
+
+            UpdatePlotColor(DEFAULT_PLOT_COLOR);
 
             UserCommunication.ShowMessage($"{Theme.GetString(Strings.Notice)}", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
@@ -224,14 +230,26 @@ namespace DAQSystem.Application.UI
             GaussianSigma = result[2];
             logger_.Info($"Fit Gaussian result: Amplitude:{GaussianAmplitude}, Mean:{GaussianMean}, Sigma:{GaussianSigma}");
 
+            fittedPlotData_ = new ScatterSeries
+            {
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 2,
+                MarkerFill = DEFAULT_FITTED_PLOT_COLOR
+            };
+
             for (int i = 0; i < xData.Length; i++)
             {
                 var fittedY = (Gaussian(xData[i], GaussianAmplitude, GaussianMean, GaussianSigma));
                 var adcCountPair = new ScatterPoint(xData[i], fittedY);
-                plotData_.Points.Add(adcCountPair);
+                fittedPlotData_.Points.Add(adcCountPair);
             }
 
+            if (!PlotModel.Series.Contains(fittedPlotData_))
+                PlotModel.Series.Add(fittedPlotData_);
+
             PlotModel.InvalidatePlot(true);
+
+            logger_.Info($"Fitted plot updated");
         }
 
         private void ResetAllData()
@@ -239,6 +257,7 @@ namespace DAQSystem.Application.UI
             rawData_.Clear();
             ProgressCounter = 0;
             plotData_.Points.Clear();
+            fittedPlotData_.Points.Clear();
             GaussianAmplitude = 0;
             GaussianMean = 0;
             GaussianSigma = 0;
@@ -254,24 +273,20 @@ namespace DAQSystem.Application.UI
             daq_.FilteredDataReceived += OnFilteredDataReceived;
 
             InitializePlot();
+            UpdatePlotColor(DEFAULT_PLOT_COLOR);
         }
 
         private void InitializePlot()
         {
             PlotModel = new PlotModel()
             {
-                PlotAreaBorderColor = DEFAULT_COLOR,
                 PlotAreaBorderThickness = new OxyThickness(2),
-                TextColor = DEFAULT_COLOR,
-                TitleColor = DEFAULT_COLOR,
                 DefaultFontSize = 14,
             };
 
             var xAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = DEFAULT_COLOR,
-                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = "ADC Channel",
                 StringFormat = "0"
@@ -280,8 +295,6 @@ namespace DAQSystem.Application.UI
             var yAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = DEFAULT_COLOR,
-                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Left,
                 Title = "Count",
                 StringFormat = "0.0"
@@ -293,11 +306,27 @@ namespace DAQSystem.Application.UI
             plotData_ = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
-                MarkerSize = 1,
-                MarkerFill = DEFAULT_COLOR
+                MarkerSize = 1
             };
 
             PlotModel.Series.Add(plotData_);
+        }
+
+        private void UpdatePlotColor(OxyColor color)
+        {
+            PlotModel.PlotAreaBorderColor = color;
+            PlotModel.TextColor = color;
+            PlotModel.TitleColor = color;
+
+            for (int i = 0; i < PlotModel.Axes.Count; i++)
+            {
+                PlotModel.Axes[i].AxislineColor = color;
+                PlotModel.Axes[i].TicklineColor = color;
+            }
+
+            plotData_.MarkerFill = color;
+
+            PlotModel.InvalidatePlot(true);
         }
 
         public async Task CleanUp()
@@ -422,6 +451,7 @@ namespace DAQSystem.Application.UI
         private readonly SyncContextProxy syncContextProxy_ = new();
 
         private ScatterSeries plotData_;
+        private ScatterSeries fittedPlotData_;
 
         public partial class CommandControl : ObservableObject
         {
