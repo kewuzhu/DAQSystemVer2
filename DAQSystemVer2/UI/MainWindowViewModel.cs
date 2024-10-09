@@ -4,7 +4,6 @@ using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
-using DAQSystem.Common.Utility;
 using DAQSystem.DataAcquisition;
 using NLog;
 using OxyPlot;
@@ -18,6 +17,8 @@ namespace DAQSystem.Application.UI
     internal partial class MainWindowViewModel : ObservableObject
     {
         private const string DEFAULT_DIR_NAME = "DAQSystem";
+        private const string DEFAULT_RAW_DATA_OUTPUT_FILENAME = "Raw_Data.csv";
+        private const string DEFAULT_PLOT_OUTPUT_FILENAME = "Plot.pdf";
         private const int DEFAULT_COLLECTION_DURATION = 20000;
         private const int DEFAULT_INITIAL_THRESHOLD = 1000;
         private const int DEFAULT_SIGNAL_SIGN = 1;
@@ -54,6 +55,9 @@ namespace DAQSystem.Application.UI
         [ObservableProperty]
         private PlotModel plotModel;
 
+        [ObservableProperty]
+        private bool isRendering;
+
         [RelayCommand]
         private void SelectDirectory()
         {
@@ -81,6 +85,7 @@ namespace DAQSystem.Application.UI
                 else
                 {
                     await daq_.Uninitialize();
+                    logger_.Info("Uninitialize serial port");
                     CurrentStatus = AppStatus.Idle;
                 }
 
@@ -88,7 +93,7 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", ex.Message, MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
             }
 
         }
@@ -99,7 +104,6 @@ namespace DAQSystem.Application.UI
             try
             {
                 ResetAllData();
-                CurrentStatus = AppStatus.Collecting;
 
                 foreach (var cmd in SettingCommands)
                 {
@@ -108,12 +112,14 @@ namespace DAQSystem.Application.UI
 
                 var duration = SettingCommands?.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration)?.Value;
                 await daq_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
-                CurrentStatus = AppStatus.Connected;
+
+                IsRendering = true;
+
                 WriteDataToCsv();
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
             }
 
         }
@@ -128,13 +134,14 @@ namespace DAQSystem.Application.UI
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Warning);
             }
         }
 
         private void ResetAllData() 
         {
             rawData_.Clear();
+            progressCounter_ = 0;
             plotData_.Points.Clear();
         }
 
@@ -225,6 +232,8 @@ namespace DAQSystem.Application.UI
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
                             plotData_.Points.Add(adcCountPair);
                         }
+                        progressCounter_++;
+                        IsRendering = progressCounter_ != rawData_.Count;
                     }
                     PlotModel.InvalidatePlot(true);
                 }
@@ -240,6 +249,15 @@ namespace DAQSystem.Application.UI
                 case nameof(SelectedSetting):
                     IsAnimationPlaying = true;
                     break;
+                case nameof(IsRendering):
+                    if (!IsRendering)
+                    {
+                        CurrentStatus = AppStatus.Connected;
+                        ExportPlotToPdf();
+                    }
+                    else
+                        CurrentStatus = AppStatus.Collecting;
+                    break;
             }
         }
 
@@ -247,10 +265,9 @@ namespace DAQSystem.Application.UI
         {
             Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
 
-            if (!Directory.Exists(WorkingDirectory))
-                Directory.CreateDirectory(WorkingDirectory);
+            CreateWorkingDirectoryIfNotExists();
 
-            string csvFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}output.csv");
+            string csvFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_RAW_DATA_OUTPUT_FILENAME}");
 
             using (var writer = new StreamWriter(csvFilePath))
             {
@@ -264,12 +281,31 @@ namespace DAQSystem.Application.UI
             UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat),csvFilePath)}", MessageType.Info);
         }
 
+        private void ExportPlotToPdf() 
+        {
+            CreateWorkingDirectoryIfNotExists();
+
+            string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
+
+            using (var stream = new FileStream(pdfFilePath, FileMode.Create))
+            {
+                PdfExporter.Export(PlotModel, stream, 600, 400);
+            }
+        }
+
+        private void CreateWorkingDirectoryIfNotExists()
+        {
+            if (!Directory.Exists(WorkingDirectory))
+                Directory.CreateDirectory(WorkingDirectory);
+        }
+
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
         private readonly DataAcquisitionControl daq_ = new();
         private readonly List<int> rawData_ = new();
 
         private ScatterSeries plotData_;
+        private int progressCounter_;
 
         public partial class CommandControl : ObservableObject
         {

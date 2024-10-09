@@ -48,7 +48,7 @@ namespace DAQSystem.Application
             }
             catch (Exception ex)
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Critical);
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nSource:{ex.Source}", MessageType.Critical);
             }
         }
 

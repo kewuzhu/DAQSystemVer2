@@ -8,7 +8,7 @@
 
     <Style TargetType="ProgressBar">
         <Setter Property="Foreground"
-                Value="{DynamicResource DAQSystem.DefaultForegroundColor}" />
+                Value="{DynamicResource DAQSystem.Accent}" />
         <Setter Property="Background"
                 Value="{DynamicResource DAQSystem.ProgressBackground}" />
         <Setter Property="BorderThickness"

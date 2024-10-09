@@ -15,7 +15,7 @@
         Background="{StaticResource DAQSystem.WindowBackground}"
         Height="500" 
         Width="900">
-    
+
     <Window.Resources>
         <Storyboard x:Key="FadeInAnimation" Completed="OnFadeInAnimationCompleted">
             <DoubleAnimation
@@ -25,7 +25,7 @@
                 Duration="0:0:.55" />
         </Storyboard>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -85,6 +85,11 @@
                     FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
                     Model="{Binding PlotModel}">
                 </oxy:PlotView>
+                <ProgressBar
+                    Grid.Row="2"
+                    Minimum="0"
+                    Maximum="1"
+                    IsIndeterminate="{Binding IsRendering}"/>
             </Grid>
             <Grid Grid.Column="2">
                 <Grid>
