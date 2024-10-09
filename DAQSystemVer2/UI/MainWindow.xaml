@@ -171,7 +171,7 @@
                                 <Grid.Style>
                                     <Style TargetType="Grid" >
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsAnimationPlaying}" Value="True">
+                                            <DataTrigger Binding="{Binding IsSettingAnimationPlaying}" Value="True">
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard x:Name="RefreshSetting" Storyboard="{StaticResource FadeInAnimation}"/>
                                                 </DataTrigger.EnterActions>
@@ -359,7 +359,7 @@
                                     <Grid.Style>
                                         <Style TargetType="Grid" >
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsAnimationPlaying}" Value="True">
+                                                <DataTrigger Binding="{Binding IsGaussianAnimationPlaying}" Value="True">
                                                     <DataTrigger.EnterActions>
                                                         <BeginStoryboard x:Name="RefreshGaussianResult" Storyboard="{StaticResource FadeInAnimation}"/>
                                                     </DataTrigger.EnterActions>

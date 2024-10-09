@@ -13,5 +13,7 @@ namespace DAQSystem.Application.Model
         public string WorkingDirectory { get; set; }
 
         public SerialConfiguration SerialConfiguration { get; set; }
+
+        public DAQConfiguration DAQConfiguration { get; set; }
     }
 }

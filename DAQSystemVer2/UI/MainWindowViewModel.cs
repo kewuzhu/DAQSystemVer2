@@ -22,12 +22,6 @@ namespace DAQSystem.Application.UI
         private const string DEFAULT_DIR_NAME = "DAQSystem";
         private const string DEFAULT_RAW_DATA_OUTPUT_FILENAME = "Raw_Data.csv";
         private const string DEFAULT_PLOT_OUTPUT_FILENAME = "Plot.pdf";
-        private const int DEFAULT_COLLECTION_DURATION = 20000;
-        private const int DEFAULT_INITIAL_THRESHOLD = 1000;
-        private const int DEFAULT_SIGNAL_SIGN = 1;
-        private const int DEFAULT_SIGNAL_BASELINE = 1050;
-        private const int DEFAULT_TIME_INTERVAL = 1000;
-        private const int DEFAULT_GAIN = 1340;
 
         private readonly OxyColor DEFAULT_PLOT_COLOR = OxyColor.FromRgb(211, 211, 211);
         private readonly OxyColor DEFAULT_FITTED_PLOT_COLOR = OxyColor.FromRgb(255, 0, 0);
@@ -35,21 +29,16 @@ namespace DAQSystem.Application.UI
 
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
 
-        public ObservableCollection<CommandControl> SettingCommands { get; } = new()
-            {
-                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, Value = DEFAULT_COLLECTION_DURATION } },
-                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, Value = DEFAULT_INITIAL_THRESHOLD } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, Value = DEFAULT_SIGNAL_SIGN } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, Value = DEFAULT_SIGNAL_BASELINE } },
-                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, Value = DEFAULT_TIME_INTERVAL } },
-                { new CommandControl() { CommandType = CommandTypes.SetGain, Value = DEFAULT_GAIN } }
-            };
+        public ObservableCollection<CommandControl> SettingCommands { get; }
 
         [ObservableProperty]
         private string workingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), DEFAULT_DIR_NAME);
 
         [ObservableProperty]
-        private bool isAnimationPlaying;
+        private bool isSettingAnimationPlaying;
+
+        [ObservableProperty]
+        private bool isGaussianAnimationPlaying;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(
@@ -218,7 +207,7 @@ namespace DAQSystem.Application.UI
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"{Theme.GetString(Strings.Parameter)} {Theme.GetString(Strings.Error)}", MessageType.Warning);
             }
 
-            IsAnimationPlaying = true;
+            IsGaussianAnimationPlaying = true;
 
             var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).OrderBy(x => x).ToArray();
             var yData = xData.Select(k => frequencyDictionary[k]).ToArray();
@@ -263,12 +252,23 @@ namespace DAQSystem.Application.UI
             GaussianSigma = 0;
         }
 
-        public MainWindowViewModel(SerialConfiguration serialConfig)
+        public MainWindowViewModel(SerialConfiguration serialConfig, DAQConfiguration daqConfig)
         {
             serialConfig_ = serialConfig ?? throw new ArgumentNullException(nameof(serialConfig));
+            daqConfig_ = daqConfig ?? throw new ArgumentNullException(nameof(daqConfig));
 
             CurrentStatus = AppStatus.Idle;
             SelectedSetting = DataAcquisitionSettings.First();
+
+            SettingCommands = new()
+            {
+                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, Value = daqConfig_.CollectDuration } },
+                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, Value = daqConfig_.InitialThreshold } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, Value = daqConfig_.SignalSign } },
+                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, Value = daqConfig_.SignalBaseline } },
+                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, Value = daqConfig_.TimeInterval } },
+                { new CommandControl() { CommandType = CommandTypes.SetGain, Value = daqConfig_.Gain } }
+            };
 
             daq_.FilteredDataReceived += OnFilteredDataReceived;
 
@@ -410,7 +410,7 @@ namespace DAQSystem.Application.UI
             switch (e.PropertyName)
             {
                 case nameof(SelectedSetting):
-                    IsAnimationPlaying = true;
+                    IsSettingAnimationPlaying = true;
                     break;
                 case nameof(ProgressCounter):
                     IsRendering = ProgressCounter != rawData_.Count;
@@ -446,6 +446,7 @@ namespace DAQSystem.Application.UI
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
+        private readonly DAQConfiguration daqConfig_ = new();
         private readonly DataAcquisitionControl daq_ = new();
         private readonly List<int> rawData_ = new();
         private readonly SyncContextProxy syncContextProxy_ = new();

@@ -16,7 +16,8 @@ namespace DAQSystem.Application.UI
         {
             var dataContext = DataContext as MainWindowViewModel;
 
-            dataContext.IsAnimationPlaying = false;
+            dataContext.IsSettingAnimationPlaying = false;
+            dataContext.IsGaussianAnimationPlaying = false;
         }
     }
 }

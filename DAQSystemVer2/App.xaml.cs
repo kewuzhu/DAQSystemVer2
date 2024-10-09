@@ -41,7 +41,7 @@ namespace DAQSystem.Application
 
                 Theme.AddStringsDictionary(appConfig.Language);
 
-                mainWindowViewModel_ = new MainWindowViewModel(appConfig.SerialConfiguration);
+                mainWindowViewModel_ = new MainWindowViewModel(appConfig.SerialConfiguration, appConfig.DAQConfiguration);
                 MainWindow = new MainWindow { DataContext = mainWindowViewModel_ };
 
                 MainWindow.Show();

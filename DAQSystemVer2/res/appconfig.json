@@ -5,5 +5,13 @@
   "SerialConfiguration": {
     "SerialPort": "COM8",
     "Baudrate": 2000000
+  },
+  "DAQConfiguration": {
+    "CollectDuration": 20000,
+    "InitialThreshold": 1000,
+    "SignalSign": 1,
+    "SignalBaseline": 1050,
+    "TimeInterval": 1000,
+    "Gain": 1340
   }
 }
