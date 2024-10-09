@@ -13,8 +13,6 @@ using OxyPlot;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.IO;
 
 namespace DAQSystem.Application.UI
@@ -101,20 +99,12 @@ namespace DAQSystem.Application.UI
 
             string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
 
-            var outputPlotModel = new PlotModel();
-            var outputPlotData = new ScatterSeries();
-
-            InitializePlot(outputPlotModel, outputPlotData, OxyColor.FromRgb(0, 0, 0));
-            outputPlotData.Points.AddRange(plotData_.Points);
-
-            outputPlotModel.InvalidatePlot(true);
-
             using (var stream = new FileStream(pdfFilePath, FileMode.Create))
             {
-                OxyPlot.SkiaSharp.PdfExporter.Export(outputPlotModel, stream, 600, 400);
+                OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
             }
 
-            UserCommunication.ShowMessage("{Theme.GetString(Strings.Notice)}", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
+            UserCommunication.ShowMessage($"{Theme.GetString(Strings.Notice)}", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
 
         [RelayCommand]
@@ -254,25 +244,25 @@ namespace DAQSystem.Application.UI
 
             daq_.FilteredDataReceived += OnFilteredDataReceived;
 
-            InitializePlot(PlotModel, plotData_, DEFAULT_COLOR);
+            InitializePlot();
         }
 
-        private static void InitializePlot(PlotModel plotModel, ScatterSeries plotData, OxyColor color)
+        private void InitializePlot()
         {
-            plotModel = new PlotModel()
+            PlotModel = new PlotModel()
             {
-                PlotAreaBorderColor = color,
+                PlotAreaBorderColor = DEFAULT_COLOR,
                 PlotAreaBorderThickness = new OxyThickness(2),
-                TextColor = color,
-                TitleColor = color,
+                TextColor = DEFAULT_COLOR,
+                TitleColor = DEFAULT_COLOR,
                 DefaultFontSize = 14,
             };
 
             var xAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = color,
-                TicklineColor = color,
+                AxislineColor = DEFAULT_COLOR,
+                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = "ADC Channel",
                 StringFormat = "0"
@@ -281,24 +271,24 @@ namespace DAQSystem.Application.UI
             var yAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = color,
-                TicklineColor = color,
+                AxislineColor = DEFAULT_COLOR,
+                TicklineColor = DEFAULT_COLOR,
                 Position = OxyPlot.Axes.AxisPosition.Left,
                 Title = "Count",
                 StringFormat = "0.0"
             };
 
-            plotModel.Axes.Add(xAxis);
-            plotModel.Axes.Add(yAxis);
+            PlotModel.Axes.Add(xAxis);
+            PlotModel.Axes.Add(yAxis);
 
-            plotData = new ScatterSeries
+            plotData_ = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 1,
-                MarkerFill = color
+                MarkerFill = DEFAULT_COLOR
             };
 
-            plotModel.Series.Add(plotData);
+            PlotModel.Series.Add(plotData_);
         }
 
         public async Task CleanUp()
@@ -346,6 +336,12 @@ namespace DAQSystem.Application.UI
 
         private static double[] FitGaussian(int[] xData, int[] yData)
         {
+            var a = yData.Max();
+            var b = xData[Array.IndexOf(yData, a)];
+
+            double meanX = yData.Select((y, i) => xData[i] * y).Sum() / yData.Sum();
+            double c = Math.Sqrt(yData.Select((y, i) => y * Math.Pow(xData[i] - meanX, 2)).Sum() / yData.Sum());
+
             Func<Vector<double>, double> targetFunction = p =>
             {
                 double amplitude = p[0];
@@ -361,7 +357,7 @@ namespace DAQSystem.Application.UI
                 return residual;
             };
 
-            var initialGuess = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0, 1.0 });
+            var initialGuess = Vector<double>.Build.DenseOfArray(new double[] { a, b, c });
 
             var optimizer = new NelderMeadSimplex(1e-6, 2000);
             var result = optimizer.FindMinimum(ObjectiveFunction.Value(targetFunction), initialGuess);
@@ -416,7 +412,7 @@ namespace DAQSystem.Application.UI
         private readonly List<int> rawData_ = new();
         private readonly SyncContextProxy syncContextProxy_ = new();
 
-        private ScatterSeries plotData_ = new();
+        private ScatterSeries plotData_;
 
         public partial class CommandControl : ObservableObject
         {

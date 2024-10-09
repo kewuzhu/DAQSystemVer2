@@ -266,7 +266,8 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
                                 <ListView 
-                                    ItemsSource="{Binding SettingCommands}">
+                                    ItemsSource="{Binding SettingCommands}"
+                                    SelectedItem="{Binding SelectedSettingCommand, Mode=TwoWay}">
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn
