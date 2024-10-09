@@ -14,7 +14,7 @@ namespace DAQSystem.DataAcquisition
         private const string SUCCESS_RESPOND = "444F4E45";
         private const string DATA_HEAD = "AABB00";
         private const string DATA_TAIL = "EEFF";
-        private const int EVENT_WAIT_TIME = 1000;  // ms
+        private const int EVENT_WAIT_TIME = 300;  // ms
 
         public bool IsInitialized { get; private set; }
 
@@ -103,7 +103,7 @@ namespace DAQSystem.DataAcquisition
                     {
                         if (readBuffer_.Count != 0) 
                         {
-                            ParseBytes(readBuffer_.ToArray());
+                            ParseBytesToIntList(readBuffer_.ToArray());
                             readBuffer_.Clear();
                         }
                     }
@@ -118,6 +118,7 @@ namespace DAQSystem.DataAcquisition
         {
             var command = BuildCommand(CommandTypes.StopAndReset, 0);
             serialPort_.Write(command, 0, command.Length);
+            logger_.Info("Reset command is sent.");
         }
 
         private async Task<bool> WriteSettingCommand(CommandTypes cmd, int parameter)
@@ -148,7 +149,7 @@ namespace DAQSystem.DataAcquisition
 
         private bool IsSettingResponseValid(List<byte> response) => BitConverter.ToString(response.ToArray()).Replace("-", "") == SUCCESS_RESPOND;
 
-        private void ParseBytes(byte[] bytes)
+        private void ParseBytesToIntList(byte[] bytes)
         {
             var dataList = new List<int>();
             string hexString = BitConverter.ToString(bytes).Replace("-", "").Replace(DATA_HEAD, "").Replace(DATA_TAIL, " ");
