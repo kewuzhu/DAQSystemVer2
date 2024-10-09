@@ -13,7 +13,7 @@
         Title="{StaticResource DAQSystem.Common.Title}"
         Foreground="{StaticResource DAQSystem.DefaultForegroundColor}"
         Background="{StaticResource DAQSystem.WindowBackground}"
-        Height="500" 
+        Height="550" 
         Width="900">
 
     <Window.Resources>
@@ -48,21 +48,6 @@
                 <Button
                     Command="{Binding ExportPlotToPdfCommand}"
                     Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" >
-                    <Button.Style>
-                        <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                    <Setter Property="IsEnabled" Value="False" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
-                                    <Setter Property="IsEnabled" Value="True" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
                 </Button>
             </Grid>
             <Grid Grid.Column="2">
@@ -98,7 +83,7 @@
                     <RowDefinition Height="5"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <oxy:PlotView 
+                <oxy:PlotView
                     Grid.Row="0"
                     Background="Transparent"
                     BorderThickness="0"
@@ -117,7 +102,9 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="5"/>
-                        <RowDefinition />
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="2*"/>
                         <RowDefinition Height="5"/>
                         <RowDefinition />
                     </Grid.RowDefinitions>
@@ -186,10 +173,10 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsAnimationPlaying}" Value="True">
                                                 <DataTrigger.EnterActions>
-                                                    <BeginStoryboard x:Name="PlayAnimation" Storyboard="{StaticResource FadeInAnimation}"/>
+                                                    <BeginStoryboard x:Name="RefreshSetting" Storyboard="{StaticResource FadeInAnimation}"/>
                                                 </DataTrigger.EnterActions>
                                                 <DataTrigger.ExitActions>
-                                                    <RemoveStoryboard BeginStoryboardName="PlayAnimation" />
+                                                    <RemoveStoryboard BeginStoryboardName="RefreshSetting" />
                                                 </DataTrigger.ExitActions>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -296,47 +283,136 @@
                         <Button
                             Grid.Row="2"
                             Grid.Column="0"
+                            Content="{StaticResource DAQSystem.Application.StartToCollect}"
                             Command="{Binding StartCollectingCommand}">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
-                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartToCollect}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
                         </Button>
                         <Button
                             Grid.Row="2" 
                             Grid.Column="2"
+                            Content="{StaticResource DAQSystem.Application.StopAndReset}"
                             Command="{Binding StopAndResetCommand}">
-                            <Button.Style>
-                                <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
-                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopAndReset}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
                         </Button>
                     </Grid>
-                    <Grid Grid.Row="2">
+                    <Grid Grid.Row="4">
+                        <GroupBox
+                            Header="{StaticResource DAQSystem.Application.FitGaussian}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition />
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Text="{StaticResource DAQSystem.Application.XValue}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{StaticResource DAQSystem.Application.From}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBox
+                                        Grid.Column="4"
+                                        Text="{Binding GaussianRangeOnXStart}"
+                                        VerticalAlignment="Center">
+                                    </TextBox>
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        Text="{StaticResource DAQSystem.Application.To}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBox
+                                        Grid.Column="8"
+                                        Text="{Binding GaussianRangeOnXEnd}"
+                                        VerticalAlignment="Center">
+                                    </TextBox>
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Grid.Column="1"
+                                        Content="{StaticResource DAQSystem.Application.Calculate}">
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Row="4">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid" >
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAnimationPlaying}" Value="True">
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard x:Name="RefreshGaussianResult" Storyboard="{StaticResource FadeInAnimation}"/>
+                                                    </DataTrigger.EnterActions>
+                                                    <DataTrigger.ExitActions>
+                                                        <RemoveStoryboard BeginStoryboardName="RefreshGaussianResult" />
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="5"/>
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Text="{StaticResource DAQSystem.Application.Amplitude}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Text="{Binding GaussianAmplitude}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="4"
+                                        Text="{StaticResource DAQSystem.Application.Mean}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="6"
+                                        Text="{Binding GaussianMean}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="8"
+                                        Text="{StaticResource DAQSystem.Application.Sigma}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                    <TextBlock
+                                        Grid.Column="10"
+                                        Text="{Binding GaussianSigma}"
+                                        VerticalAlignment="Center">
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
                     </Grid>
                 </Grid>
             </Grid>

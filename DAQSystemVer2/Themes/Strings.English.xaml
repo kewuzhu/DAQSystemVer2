@@ -9,17 +9,24 @@
     <system:String x:Key="DAQSystem.Common.Title">DAQSystem</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
+    <system:String x:Key="DAQSystem.Application.Amplitude">Amplitude</system:String>
+    <system:String x:Key="DAQSystem.Application.Calculate">Calculate</system:String>
     <system:String x:Key="DAQSystem.Application.ChangePath">Change Path</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">Collect Duration</system:String>
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">Export Plot To Pdf</system:String>
+    <system:String x:Key="DAQSystem.Application.FitGaussian">Fit Gaussian</system:String>
+    <system:String x:Key="DAQSystem.Application.From">From</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">Gain</system:String>
     <system:String x:Key="DAQSystem.Application.InitialThreshold">Initial Threshold</system:String>
+    <system:String x:Key="DAQSystem.Application.Mean">Mean</system:String>
     <system:String x:Key="DAQSystem.Application.Negative">Negative</system:String>
+    <system:String x:Key="DAQSystem.Application.Notice">Notice</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">Parameter</system:String>
     <system:String x:Key="DAQSystem.Application.Positive">Positive</system:String>
     <system:String x:Key="DAQSystem.Application.SaveFileToPathMessageFormat">File has been saved to path:{0}</system:String>
     <system:String x:Key="DAQSystem.Application.Set">Set</system:String>
+    <system:String x:Key="DAQSystem.Application.Sigma">Sigma</system:String>
     <system:String x:Key="DAQSystem.Application.SignalBaseline">Signal Baseline</system:String>
     <system:String x:Key="DAQSystem.Application.SignalSign">Signal Sign</system:String>
     <system:String x:Key="DAQSystem.Application.StartToCollect">Start To Collect</system:String>
@@ -27,6 +34,8 @@
     <system:String x:Key="DAQSystem.Application.StopAndReset">Stop And Reset</system:String>
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">Stop Serial Communication</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">Time Interval</system:String>
+    <system:String x:Key="DAQSystem.Application.To">To</system:String>
     <system:String x:Key="DAQSystem.Application.Value">Value</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">Working Directory:</system:String>
+    <system:String x:Key="DAQSystem.Application.XValue">X Value</system:String>
 </ResourceDictionary>

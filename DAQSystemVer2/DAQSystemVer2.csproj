@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
     <PackageReference Include="OxyPlot.SkiaSharp.Wpf" Version="2.2.0" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />

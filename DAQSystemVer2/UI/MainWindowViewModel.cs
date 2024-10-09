@@ -4,12 +4,17 @@ using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
+using DAQSystem.Common.Utility;
 using DAQSystem.DataAcquisition;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Optimization;
 using NLog;
 using OxyPlot;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.IO;
 
 namespace DAQSystem.Application.UI
@@ -47,15 +52,47 @@ namespace DAQSystem.Application.UI
         private bool isAnimationPlaying;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(
+            nameof(ExportPlotToPdfCommand),
+            nameof(StartCollectingCommand),
+            nameof(StopAndResetCommand),
+            nameof(CalculateGaussianCommand))]
         private AppStatus currentStatus;
 
         [ObservableProperty]
         private CommandTypes selectedSetting;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(
+            nameof(ExportPlotToPdfCommand),
+            nameof(CalculateGaussianCommand))]
+        private int progressCounter;
+
+        [ObservableProperty]
         private PlotModel plotModel;
 
-        private bool CanExportPlotToPdf() => plotData_.Points.Count != 0 && progressCounter_ == rawData_.Count;
+        [ObservableProperty]
+        private CommandControl selectedSettingCommand;
+
+        [ObservableProperty]
+        private bool isRendering;
+
+        [ObservableProperty]
+        private int gaussianRangeOnXStart;
+
+        [ObservableProperty]
+        private int gaussianRangeOnXEnd;
+
+        [ObservableProperty]
+        private double gaussianAmplitude;
+
+        [ObservableProperty]
+        private double gaussianMean;
+
+        [ObservableProperty]
+        private double gaussianSigma;
+
+        private bool CanExportPlotToPdf() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
         [RelayCommand(CanExecute = nameof(CanExportPlotToPdf))]
         private void ExportPlotToPdf()
@@ -64,15 +101,20 @@ namespace DAQSystem.Application.UI
 
             string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
 
-            lock (PlotModel) 
+            var outputPlotModel = new PlotModel();
+            var outputPlotData = new ScatterSeries();
+
+            InitializePlot(outputPlotModel, outputPlotData, OxyColor.FromRgb(0, 0, 0));
+            outputPlotData.Points.AddRange(plotData_.Points);
+
+            outputPlotModel.InvalidatePlot(true);
+
+            using (var stream = new FileStream(pdfFilePath, FileMode.Create))
             {
-                using (var stream = new FileStream(pdfFilePath, FileMode.Create))
-                {
-                    OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
-                }
+                OxyPlot.SkiaSharp.PdfExporter.Export(outputPlotModel, stream, 600, 400);
             }
 
-            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
+            UserCommunication.ShowMessage("{Theme.GetString(Strings.Notice)}", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
 
         [RelayCommand]
@@ -101,6 +143,8 @@ namespace DAQSystem.Application.UI
                 }
                 else
                 {
+                    ResetAllData();
+
                     await daq_.Uninitialize();
                     logger_.Info("Uninitialize serial port");
                     CurrentStatus = AppStatus.Idle;
@@ -115,7 +159,9 @@ namespace DAQSystem.Application.UI
 
         }
 
-        [RelayCommand]
+        private bool CanStartCollecting() => CurrentStatus == AppStatus.Connected;
+
+        [RelayCommand(CanExecute = nameof(CanStartCollecting))]
         private async Task StartCollecting()
         {
             try
@@ -126,8 +172,11 @@ namespace DAQSystem.Application.UI
 
                 foreach (var cmd in SettingCommands)
                 {
+                    SelectedSettingCommand = cmd;
+                    await Task.Delay(100);
                     await daq_.WriteCommand(cmd.CommandType, cmd.Value);
                 }
+                SelectedSettingCommand = null;
 
                 var duration = SettingCommands?.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration)?.Value;
                 await daq_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
@@ -142,7 +191,10 @@ namespace DAQSystem.Application.UI
 
         }
 
-        [RelayCommand(AllowConcurrentExecutions = true)]
+        private bool CanStopAndReset() => CurrentStatus != AppStatus.Idle;
+
+        [RelayCommand(AllowConcurrentExecutions = true,
+            CanExecute = nameof(CanStopAndReset))]
         private async Task StopAndReset()
         {
             try
@@ -156,11 +208,41 @@ namespace DAQSystem.Application.UI
             }
         }
 
-        private void ResetAllData() 
+        private bool CanCalculateGaussian() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
+
+        [RelayCommand(CanExecute = nameof(CanCalculateGaussian))]
+
+        private void CalculateGaussian()
+        {
+            Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+
+            if (!frequencyDictionary.Any(x => x.Key == GaussianRangeOnXStart) ||
+                !frequencyDictionary.Any(x => x.Key == GaussianRangeOnXEnd) ||
+                GaussianRangeOnXStart >= GaussianRangeOnXEnd)
+            {
+                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"{Theme.GetString(Strings.Parameter)} {Theme.GetString(Strings.Error)}", MessageType.Warning);
+            }
+
+            IsAnimationPlaying = true;
+
+            var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).ToArray();
+            var yData = xData.Select(k => frequencyDictionary[k]).ToArray();
+
+            var result = FitGaussian(xData, yData);
+
+            GaussianAmplitude = result[0];
+            GaussianMean = result[1];
+            GaussianSigma = result[2];
+        }
+
+        private void ResetAllData()
         {
             rawData_.Clear();
-            progressCounter_ = 0;
+            ProgressCounter = 0;
             plotData_.Points.Clear();
+            GaussianAmplitude = 0;
+            GaussianMean = 0;
+            GaussianSigma = 0;
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig)
@@ -172,25 +254,25 @@ namespace DAQSystem.Application.UI
 
             daq_.FilteredDataReceived += OnFilteredDataReceived;
 
-            InitializePlot();
+            InitializePlot(PlotModel, plotData_, DEFAULT_COLOR);
         }
 
-        private void InitializePlot()
+        private static void InitializePlot(PlotModel plotModel, ScatterSeries plotData, OxyColor color)
         {
-            PlotModel = new PlotModel()
+            plotModel = new PlotModel()
             {
-                PlotAreaBorderColor = DEFAULT_COLOR,
+                PlotAreaBorderColor = color,
                 PlotAreaBorderThickness = new OxyThickness(2),
-                TextColor = DEFAULT_COLOR,
-                TitleColor = DEFAULT_COLOR,
+                TextColor = color,
+                TitleColor = color,
                 DefaultFontSize = 14,
             };
 
             var xAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = DEFAULT_COLOR,
-                TicklineColor = DEFAULT_COLOR,
+                AxislineColor = color,
+                TicklineColor = color,
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = "ADC Channel",
                 StringFormat = "0"
@@ -199,24 +281,24 @@ namespace DAQSystem.Application.UI
             var yAxis = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
-                AxislineColor = DEFAULT_COLOR,
-                TicklineColor = DEFAULT_COLOR,
+                AxislineColor = color,
+                TicklineColor = color,
                 Position = OxyPlot.Axes.AxisPosition.Left,
                 Title = "Count",
                 StringFormat = "0.0"
             };
 
-            PlotModel.Axes.Add(xAxis);
-            PlotModel.Axes.Add(yAxis);
+            plotModel.Axes.Add(xAxis);
+            plotModel.Axes.Add(yAxis);
 
-            plotData_ = new ScatterSeries
+            plotData = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 1,
-                MarkerFill = DEFAULT_COLOR
+                MarkerFill = color
             };
 
-            PlotModel.Series.Add(plotData_);
+            plotModel.Series.Add(plotData);
         }
 
         public async Task CleanUp()
@@ -237,7 +319,7 @@ namespace DAQSystem.Application.UI
             {
                 lock (plotData_)
                 {
-                    foreach (int d in data) 
+                    foreach (int d in data)
                     {
                         if (!plotData_.Points.Any(x => x.X == d))
                         {
@@ -250,11 +332,41 @@ namespace DAQSystem.Application.UI
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
                             plotData_.Points.Add(adcCountPair);
                         }
+                        syncContextProxy_.ExecuteInSyncContext(() => { ProgressCounter++; });
                     }
                     PlotModel.InvalidatePlot(true);
                 }
             });
-            await App.Current.Dispatcher.BeginInvoke(new Action(() => { progressCounter_ += data.Count; }));
+        }
+
+        private static double Gaussian(double x, double a, double b, double c)
+        {
+            return a * Math.Exp(-Math.Pow((x - b), 2) / (2 * Math.Pow(c, 2)));
+        }
+
+        private static double[] FitGaussian(int[] xData, int[] yData)
+        {
+            Func<Vector<double>, double> targetFunction = p =>
+            {
+                double amplitude = p[0];
+                double mean = p[1];
+                double sigma = p[2];
+                double residual = 0.0;
+
+                for (int i = 0; i < xData.Length; i++)
+                {
+                    double predicted = Gaussian(xData[i], amplitude, mean, sigma);
+                    residual += Math.Pow(yData[i] - predicted, 2);
+                }
+                return residual;
+            };
+
+            var initialGuess = Vector<double>.Build.DenseOfArray(new double[] { 1.0, 0.0, 1.0 });
+
+            var optimizer = new NelderMeadSimplex(1e-6, 2000);
+            var result = optimizer.FindMinimum(ObjectiveFunction.Value(targetFunction), initialGuess);
+
+            return result.MinimizingPoint.ToArray();
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -265,6 +377,9 @@ namespace DAQSystem.Application.UI
             {
                 case nameof(SelectedSetting):
                     IsAnimationPlaying = true;
+                    break;
+                case nameof(ProgressCounter):
+                    IsRendering = ProgressCounter != rawData_.Count;
                     break;
             }
         }
@@ -286,7 +401,7 @@ namespace DAQSystem.Application.UI
                     writer.WriteLine($"{kvp.Key},{kvp.Value}");
                 }
             }
-            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat),csvFilePath)}", MessageType.Info);
+            UserCommunication.ShowMessage($"{Theme.GetString(Strings.Notice)}", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), csvFilePath)}", MessageType.Info);
         }
 
         private void CreateWorkingDirectoryIfNotExists()
@@ -299,9 +414,9 @@ namespace DAQSystem.Application.UI
         private readonly SerialConfiguration serialConfig_ = new();
         private readonly DataAcquisitionControl daq_ = new();
         private readonly List<int> rawData_ = new();
+        private readonly SyncContextProxy syncContextProxy_ = new();
 
-        private ScatterSeries plotData_;
-        private int progressCounter_;
+        private ScatterSeries plotData_ = new();
 
         public partial class CommandControl : ObservableObject
         {

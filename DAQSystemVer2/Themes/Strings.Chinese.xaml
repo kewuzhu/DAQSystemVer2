@@ -27,17 +27,24 @@
     <system:String x:Key="DAQSystem.Common.Title">多道系统</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
+    <system:String x:Key="DAQSystem.Application.Amplitude">幅值</system:String>
+    <system:String x:Key="DAQSystem.Application.Calculate">计算</system:String>
     <system:String x:Key="DAQSystem.Application.ChangePath">更改路径</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">采集时间</system:String>
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">输出图表为PDF</system:String>
+    <system:String x:Key="DAQSystem.Application.FitGaussian">高斯拟合</system:String>
+    <system:String x:Key="DAQSystem.Application.From">从</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">增益值</system:String>
     <system:String x:Key="DAQSystem.Application.InitialThreshold">起始阈值</system:String>
+    <system:String x:Key="DAQSystem.Application.Mean">均值</system:String>
     <system:String x:Key="DAQSystem.Application.Negative">负信号</system:String>
+    <system:String x:Key="DAQSystem.Application.Notice">通知</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">参数</system:String>
     <system:String x:Key="DAQSystem.Application.Positive">正信号</system:String>
     <system:String x:Key="DAQSystem.Application.SaveFileToPathMessageFormat">文件已保存至路径:{0}</system:String>
     <system:String x:Key="DAQSystem.Application.Set">设置</system:String>
+    <system:String x:Key="DAQSystem.Application.Sigma">标准差</system:String>
     <system:String x:Key="DAQSystem.Application.SignalBaseline">信号基线</system:String>
     <system:String x:Key="DAQSystem.Application.SignalSign">信号极性</system:String>
     <system:String x:Key="DAQSystem.Application.StartToCollect">开始采集</system:String>
@@ -45,7 +52,9 @@
     <system:String x:Key="DAQSystem.Application.StopAndReset">停止并复位</system:String>
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">停止通信</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">时间门</system:String>
+    <system:String x:Key="DAQSystem.Application.To">到</system:String>
     <system:String x:Key="DAQSystem.Application.Value">值</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">工作路径:</system:String>
+    <system:String x:Key="DAQSystem.Application.XValue">X 值</system:String>
 
 </ResourceDictionary>
