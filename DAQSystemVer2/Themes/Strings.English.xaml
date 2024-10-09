@@ -12,6 +12,7 @@
     <system:String x:Key="DAQSystem.Application.ChangePath">Change Path</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">Collect Duration</system:String>
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
+    <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">Export Plot To Pdf</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">Gain</system:String>
     <system:String x:Key="DAQSystem.Application.InitialThreshold">Initial Threshold</system:String>
     <system:String x:Key="DAQSystem.Application.Negative">Negative</system:String>

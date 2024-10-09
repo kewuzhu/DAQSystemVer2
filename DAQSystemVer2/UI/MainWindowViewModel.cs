@@ -55,8 +55,23 @@ namespace DAQSystem.Application.UI
         [ObservableProperty]
         private PlotModel plotModel;
 
-        [ObservableProperty]
-        private bool isRendering;
+        [RelayCommand]
+        private void ExportPlotToPdf()
+        {
+            CreateWorkingDirectoryIfNotExists();
+
+            string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
+
+            lock (PlotModel) 
+            {
+                using (var stream = new FileStream(pdfFilePath, FileMode.Create))
+                {
+                    OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
+                }
+            }
+
+            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
+        }
 
         [RelayCommand]
         private void SelectDirectory()
@@ -105,6 +120,8 @@ namespace DAQSystem.Application.UI
             {
                 ResetAllData();
 
+                CurrentStatus = AppStatus.Collecting;
+
                 foreach (var cmd in SettingCommands)
                 {
                     await daq_.WriteCommand(cmd.CommandType, cmd.Value);
@@ -113,9 +130,8 @@ namespace DAQSystem.Application.UI
                 var duration = SettingCommands?.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration)?.Value;
                 await daq_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
 
-                IsRendering = true;
-
                 WriteDataToCsv();
+                CurrentStatus = AppStatus.Connected;
             }
             catch (Exception ex)
             {
@@ -233,7 +249,6 @@ namespace DAQSystem.Application.UI
                             plotData_.Points.Add(adcCountPair);
                         }
                         progressCounter_++;
-                        IsRendering = progressCounter_ != rawData_.Count;
                     }
                     PlotModel.InvalidatePlot(true);
                 }
@@ -248,15 +263,6 @@ namespace DAQSystem.Application.UI
             {
                 case nameof(SelectedSetting):
                     IsAnimationPlaying = true;
-                    break;
-                case nameof(IsRendering):
-                    if (!IsRendering)
-                    {
-                        CurrentStatus = AppStatus.Connected;
-                        ExportPlotToPdf();
-                    }
-                    else
-                        CurrentStatus = AppStatus.Collecting;
                     break;
             }
         }
@@ -279,19 +285,6 @@ namespace DAQSystem.Application.UI
                 }
             }
             UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat),csvFilePath)}", MessageType.Info);
-        }
-
-        private void ExportPlotToPdf()
-        {
-            CreateWorkingDirectoryIfNotExists();
-
-            string pdfFilePath = Path.Combine(WorkingDirectory, $"{DateTime.Now:yyyy-MM-dd-HHmmss}-{DEFAULT_PLOT_OUTPUT_FILENAME}");
-
-            using (var stream = new FileStream(pdfFilePath, FileMode.Create))
-            {
-                OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
-            }
-            UserCommunication.ShowMessage("null", $"{string.Format(Theme.GetString(Strings.SaveFileToPathMessageFormat), pdfFilePath)}", MessageType.Info);
         }
 
         private void CreateWorkingDirectoryIfNotExists()

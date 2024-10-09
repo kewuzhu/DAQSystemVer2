@@ -44,6 +44,27 @@
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Button
+                    Command="{Binding ExportPlotToPdfCommand}"
+                    Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" >
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
+                                    <Setter Property="IsEnabled" Value="True" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
             <Grid Grid.Column="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

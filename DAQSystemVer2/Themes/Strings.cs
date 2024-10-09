@@ -11,6 +11,7 @@
         public const string ChangePath = "DAQSystem.Application.ChangePath";
         public const string CollectDuration = "DAQSystem.Application.CollectDuration";
         public const string Error = "DAQSystem.Application.Error";
+        public const string ExportPlotToPdf = "DAQSystem.Application.ExportPlotToPdf";
         public const string Gain = "DAQSystem.Application.Gain";
         public const string InitialThreshold = "DAQSystem.Application.InitialThreshold";
         public const string Negative = "DAQSystem.Application.Negative";
