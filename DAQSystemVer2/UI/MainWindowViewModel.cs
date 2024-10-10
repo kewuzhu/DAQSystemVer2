@@ -22,12 +22,11 @@ namespace DAQSystem.Application.UI
         private const string DEFAULT_DIR_NAME = "DAQSystem";
         private const string DEFAULT_RAW_DATA_OUTPUT_FILENAME = "Raw_Data.csv";
         private const string DEFAULT_PLOT_OUTPUT_FILENAME = "Plot.pdf";
+        private const int TRANSLATION_ANIMAITON_DISTANCE = 500;
 
         private readonly OxyColor DEFAULT_PLOT_COLOR = OxyColor.FromRgb(211, 211, 211);
         private readonly OxyColor DEFAULT_FITTED_PLOT_COLOR = OxyColor.FromRgb(255, 0, 0);
         private readonly OxyColor DEFAULT_OUTPUT_PLOT_COLOR = OxyColor.FromRgb(0, 0, 0);
-
-        public const int TranslationAnimationDistance = 500;
 
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
 
@@ -298,7 +297,7 @@ namespace DAQSystem.Application.UI
 
             InitializePlot();
             UpdatePlotColor(DEFAULT_PLOT_COLOR);
-            GaussianGridTranslation = TranslationAnimationDistance;
+            GaussianGridTranslation = TRANSLATION_ANIMAITON_DISTANCE;
         }
 
         private void InitializePlot()
@@ -449,7 +448,7 @@ namespace DAQSystem.Application.UI
                     else if(CurrentStatus == AppStatus.Idle)
                     {
                         IsGaussianTranslateOutPlaying = true;
-                        GaussianGridTranslation = TranslationAnimationDistance;
+                        GaussianGridTranslation = TRANSLATION_ANIMAITON_DISTANCE;
                     }
                     break;
             }
