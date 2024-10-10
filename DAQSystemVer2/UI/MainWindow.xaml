@@ -17,12 +17,26 @@
         Width="900">
 
     <Window.Resources>
-        <Storyboard x:Key="FadeInAnimation" Completed="OnFadeInAnimationCompleted">
+        <Storyboard x:Key="FadeInAnimation" Completed="OnAnimationCompleted">
             <DoubleAnimation
                 Storyboard.TargetProperty="Opacity"
                 From="0"
                 To="1"
-                Duration="0:0:.55" />
+                Duration="0:0:.45" />
+        </Storyboard>
+        <Storyboard x:Key="SlideInStoryboard" Completed="OnAnimationCompleted">
+            <DoubleAnimation
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                From="500"
+                To="0"
+                Duration="0:0:.45" />
+        </Storyboard>
+        <Storyboard x:Key="SlideOutStoryboard" Completed="OnAnimationCompleted">
+            <DoubleAnimation
+                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                From="0"
+                To="500"
+                Duration="0:0:.45" />
         </Storyboard>
     </Window.Resources>
 
@@ -97,7 +111,9 @@
                     Maximum="1"
                     IsIndeterminate="{Binding IsRendering}"/>
             </Grid>
-            <Grid Grid.Column="2">
+            <Grid
+                x:Name="ControlGrid"
+                Grid.Column="2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -171,7 +187,7 @@
                                 <Grid.Style>
                                     <Style TargetType="Grid" >
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSettingAnimationPlaying}" Value="True">
+                                            <DataTrigger Binding="{Binding IsSettingFadePlaying}" Value="True">
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard x:Name="RefreshSetting" Storyboard="{StaticResource FadeInAnimation}"/>
                                                 </DataTrigger.EnterActions>
@@ -294,9 +310,35 @@
                             Command="{Binding StopAndResetCommand}">
                         </Button>
                     </Grid>
-                    <Grid Grid.Row="4">
-                        <GroupBox
-                            Header="{StaticResource DAQSystem.Application.FitGaussian}">
+                    <Grid 
+                        Grid.Row="4"
+                        x:Name="FitGaussianGrid">
+                        <Grid.RenderTransform>
+                            <TranslateTransform X="{Binding GaussianGridTranslation}" />
+                        </Grid.RenderTransform>
+                        <Grid.Style>
+                            <Style TargetType="Grid" >
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsGaussianTranslateInPlaying}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="GaussianGridSlideIn" Storyboard="{StaticResource SlideInStoryboard}"/>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <RemoveStoryboard BeginStoryboardName="GaussianGridSlideIn" />
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsGaussianTranslateOutPlaying}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="GaussianGridSlideOut" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <RemoveStoryboard BeginStoryboardName="GaussianGridSlideOut" />
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <GroupBox Header="{StaticResource DAQSystem.Application.FitGaussian}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="2*"/>
@@ -359,7 +401,7 @@
                                     <Grid.Style>
                                         <Style TargetType="Grid" >
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsGaussianAnimationPlaying}" Value="True">
+                                                <DataTrigger Binding="{Binding IsCalculationFadePlaying}" Value="True">
                                                     <DataTrigger.EnterActions>
                                                         <BeginStoryboard x:Name="RefreshGaussianResult" Storyboard="{StaticResource FadeInAnimation}"/>
                                                     </DataTrigger.EnterActions>

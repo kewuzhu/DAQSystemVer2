@@ -12,12 +12,14 @@ namespace DAQSystem.Application.UI
             InitializeComponent();
         }
 
-        private void OnFadeInAnimationCompleted(object sender, EventArgs e)
+        private void OnAnimationCompleted(object sender, EventArgs e)
         {
             var dataContext = DataContext as MainWindowViewModel;
 
-            dataContext.IsSettingAnimationPlaying = false;
-            dataContext.IsGaussianAnimationPlaying = false;
+            dataContext.IsSettingFadePlaying = false;
+            dataContext.IsCalculationFadePlaying = false;
+            dataContext.IsGaussianTranslateInPlaying = false;
+            dataContext.IsGaussianTranslateOutPlaying = false;
         }
     }
 }

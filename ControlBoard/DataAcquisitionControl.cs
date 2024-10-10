@@ -60,7 +60,7 @@ namespace DAQSystem.DataAcquisition
 
         public async Task WriteCommand(CommandTypes cmd, int parameter = 0)
         {
-            logger_.Info($"Command writing: CommandType {cmd} Value {parameter}");
+            logger_.Info($"Command writing: CommandType:{cmd} Value:{parameter}");
             try
             {
                 await commandLock_.WaitAsync();
@@ -128,7 +128,7 @@ namespace DAQSystem.DataAcquisition
             return await GetSettingResponse();
         }
 
-        private byte[] BuildCommand(CommandTypes cmd, int parameter) => BitConverter.GetBytes((short)cmd)
+        private static byte[] BuildCommand(CommandTypes cmd, int parameter) => BitConverter.GetBytes((short)cmd)
                                                                             .Reverse()
                                                                             .Concat(BitConverter.GetBytes(parameter).Reverse())
                                                                             .ToArray();
@@ -147,7 +147,7 @@ namespace DAQSystem.DataAcquisition
             });
         }
 
-        private bool IsSettingResponseValid(List<byte> response) => BitConverter.ToString(response.ToArray()).Replace("-", "") == SUCCESS_RESPOND;
+        private static bool IsSettingResponseValid(List<byte> response) => BitConverter.ToString(response.ToArray()).Replace("-", "") == SUCCESS_RESPOND;
 
         private void ParseBytesToIntList(byte[] bytes)
         {
@@ -181,7 +181,6 @@ namespace DAQSystem.DataAcquisition
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
-
         private readonly List<byte> readBuffer_ = new();
         private readonly AutoResetEvent replyReceived_ = new(false);
         private static readonly SemaphoreSlim commandLock_ = new(1);
