@@ -158,7 +158,6 @@ namespace DAQSystem.Application.UI
             {
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
-
         }
 
         private bool CanStartCollecting() => CurrentStatus == AppStatus.Connected;
@@ -190,7 +189,6 @@ namespace DAQSystem.Application.UI
             {
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
-
         }
 
         private bool CanStopAndReset() => CurrentStatus != AppStatus.Idle;
