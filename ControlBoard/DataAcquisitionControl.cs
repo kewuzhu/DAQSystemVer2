@@ -175,8 +175,8 @@ namespace DAQSystem.DataAcquisition
                 if (buffer.Length != 0) 
                 {
                     readBuffer_.AddRange(buffer);
-                    replyReceived_.Set();
                 }
+                replyReceived_.Set();
             }
         }
 

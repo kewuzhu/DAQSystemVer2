@@ -40,7 +40,7 @@ namespace DAQSystem.Application.UI
             nameof(ExportPlotToPdfCommand),
             nameof(StartCollectingCommand),
             nameof(StopAndResetCommand),
-            nameof(CalculateGaussianCommand))]
+            nameof(CalculateFitGaussianAndUpdatePlotCommand))]
         private AppStatus currentStatus;
 
         [ObservableProperty]
@@ -49,7 +49,7 @@ namespace DAQSystem.Application.UI
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(
             nameof(ExportPlotToPdfCommand),
-            nameof(CalculateGaussianCommand))]
+            nameof(CalculateFitGaussianAndUpdatePlotCommand))]
         private int progressCounter;
 
         [ObservableProperty]
@@ -141,7 +141,7 @@ namespace DAQSystem.Application.UI
                 if (CurrentStatus == AppStatus.Idle)
                 {
                     logger_.Info("Initialize serial port");
-                    await daq_.Initialize(serialConfig_);
+                    await daqControl_.Initialize(serialConfig_);
 
                     CurrentStatus = AppStatus.Connected;
                 }
@@ -149,7 +149,7 @@ namespace DAQSystem.Application.UI
                 {
                     ResetAllData();
 
-                    await daq_.Uninitialize();
+                    await daqControl_.Uninitialize();
                     logger_.Info("Uninitialize serial port");
                     CurrentStatus = AppStatus.Idle;
                 }
@@ -175,12 +175,12 @@ namespace DAQSystem.Application.UI
                 {
                     SelectedSettingCommand = cmd;
                     await Task.Delay(100);
-                    await daq_.WriteCommand(cmd.CommandType, cmd.Value);
+                    await daqControl_.WriteCommand(cmd.CommandType, cmd.Value);
                 }
                 SelectedSettingCommand = null;
 
                 var duration = SettingCommands?.FirstOrDefault(x => x.CommandType == CommandTypes.SetCollectDuration)?.Value;
-                await daq_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
+                await daqControl_.WriteCommand(CommandTypes.StartToCollect, (duration.Value / 100));
 
                 WriteDataToCsv();
                 CurrentStatus = AppStatus.Connected;
@@ -199,7 +199,7 @@ namespace DAQSystem.Application.UI
         {
             try
             {
-                await daq_.WriteCommand(CommandTypes.StopAndReset);
+                await daqControl_.WriteCommand(CommandTypes.StopAndReset);
                 ResetAllData();
             }
             catch (Exception ex)
@@ -211,7 +211,7 @@ namespace DAQSystem.Application.UI
         private bool CanCalculateGaussian() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
         [RelayCommand(CanExecute = nameof(CanCalculateGaussian))]
-        private void CalculateGaussian()
+        private void CalculateFitGaussianAndUpdatePlot()
         {
             try 
             {
@@ -291,7 +291,7 @@ namespace DAQSystem.Application.UI
                 { new CommandControl() { CommandType = CommandTypes.SetGain, Value = daqConfig_.Gain } }
             };
 
-            daq_.FilteredDataReceived += OnFilteredDataReceived;
+            daqControl_.FilteredDataReceived += OnFilteredDataReceived;
 
             InitializePlot();
             UpdatePlotColor(DEFAULT_PLOT_COLOR);
@@ -353,8 +353,8 @@ namespace DAQSystem.Application.UI
 
         public async Task CleanUp()
         {
-            daq_.FilteredDataReceived -= OnFilteredDataReceived;
-            await daq_.Uninitialize();
+            daqControl_.FilteredDataReceived -= OnFilteredDataReceived;
+            await daqControl_.Uninitialize();
         }
 
         private async void OnFilteredDataReceived(object sender, List<int> data)
@@ -481,7 +481,7 @@ namespace DAQSystem.Application.UI
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
         private readonly SerialConfiguration serialConfig_ = new();
         private readonly DAQConfiguration daqConfig_ = new();
-        private readonly DataAcquisitionControl daq_ = new();
+        private readonly DataAcquisitionControl daqControl_ = new();
         private readonly List<int> rawData_ = new();
         private readonly SyncContextProxy syncContextProxy_ = new();
 

@@ -394,7 +394,7 @@
                                     <Button
                                         Grid.Column="2"
                                         Content="{StaticResource DAQSystem.Application.Calculate}"
-                                        Command="{Binding CalculateGaussianCommand}">
+                                        Command="{Binding CalculateFitGaussianAndUpdatePlotCommand}">
                                     </Button>
                                 </Grid>
                                 <Grid Grid.Row="4">
