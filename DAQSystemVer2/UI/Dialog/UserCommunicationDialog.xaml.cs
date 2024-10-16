@@ -1,8 +1,7 @@
 ﻿using DAQSystem.Common.UI;
-using System;
 using System.Windows;
 
-namespace DAQSystem.Application.UI
+namespace DAQSystem.Application.UI.Dialog
 {
     public partial class UserCommunicationDialog : DialogBase
     {

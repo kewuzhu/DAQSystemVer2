@@ -17,9 +17,6 @@ namespace DAQSystem.Application.UI
             var dataContext = DataContext as MainWindowViewModel;
 
             dataContext.IsSettingFadePlaying = false;
-            dataContext.IsCalculationFadePlaying = false;
-            dataContext.IsGaussianTranslateInPlaying = false;
-            dataContext.IsGaussianTranslateOutPlaying = false;
         }
     }
 }

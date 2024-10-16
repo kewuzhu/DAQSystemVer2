@@ -62,4 +62,9 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
     </Style>
+
+    <Style x:Key="{x:Type TextBlock}"
+           BasedOn="{StaticResource DAQSystem.Small}"
+           TargetType="{x:Type TextBlock}"/>
+    
 </ResourceDictionary>

@@ -2,12 +2,11 @@
 using CommunityToolkit.Mvvm.Input;
 using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
+using DAQSystem.Application.UI.Dialog;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Model;
 using DAQSystem.Common.Utility;
 using DAQSystem.DataAcquisition;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Optimization;
 using NLog;
 using OxyPlot;
 using OxyPlot.Series;
@@ -30,7 +29,7 @@ namespace DAQSystem.Application.UI
 
         public List<CommandTypes> DataAcquisitionSettings { get; } = new List<CommandTypes>() { CommandTypes.SetCollectDuration, CommandTypes.SetInitialThreshold, CommandTypes.SetSignalSign, CommandTypes.SetSignalBaseline, CommandTypes.SetTimeInterval, CommandTypes.SetGain };
 
-        public ObservableCollection<CommandControl> SettingCommands { get; }
+        public ObservableCollection<SettingCommandValuePair> SettingCommands { get; }
 
         [ObservableProperty]
         private string workingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), DEFAULT_DIR_NAME);
@@ -40,56 +39,40 @@ namespace DAQSystem.Application.UI
             nameof(ExportPlotToPdfCommand),
             nameof(StartCollectingCommand),
             nameof(StopAndResetCommand),
-            nameof(CalculateFitGaussianAndUpdatePlotCommand))]
+            nameof(OpenFitGaussianDialogCommand),
+            nameof(OpenChannelToEnergyDialogCommand))]
         private AppStatus currentStatus;
 
         [ObservableProperty]
         private CommandTypes selectedSetting;
 
         [ObservableProperty]
+        private PlotTypes selectedPlotType;
+
+        [ObservableProperty]
+        private LinearEquationParameters channelToEnergyParameters;
+
+        [ObservableProperty]
         [NotifyCanExecuteChangedFor(
             nameof(ExportPlotToPdfCommand),
-            nameof(CalculateFitGaussianAndUpdatePlotCommand))]
+            nameof(OpenFitGaussianDialogCommand),
+            nameof(OpenChannelToEnergyDialogCommand))]
         private int progressCounter;
 
         [ObservableProperty]
-        private PlotModel plotModel;
+        private PlotModel countChannelPlotModel;
 
         [ObservableProperty]
-        private CommandControl selectedSettingCommand;
+        private SettingCommandValuePair selectedSettingCommand;
 
         [ObservableProperty]
         private bool isRendering;
 
         [ObservableProperty]
-        private int gaussianRangeOnXStart;
-
-        [ObservableProperty]
-        private int gaussianRangeOnXEnd;
-
-        [ObservableProperty]
-        private double gaussianAmplitude;
-
-        [ObservableProperty]
-        private double gaussianMean;
-
-        [ObservableProperty]
-        private double gaussianSigma;
+        private PlotTypes currentPlotType;
 
         [ObservableProperty]
         private bool isSettingFadePlaying;
-
-        [ObservableProperty]
-        private bool isCalculationFadePlaying;
-
-        [ObservableProperty]
-        private bool isGaussianTranslateInPlaying;
-
-        [ObservableProperty]
-        private bool isGaussianTranslateOutPlaying;
-
-        [ObservableProperty]
-        private int gaussianGridTranslation;
 
         private bool CanExportPlotToPdf() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
@@ -106,7 +89,7 @@ namespace DAQSystem.Application.UI
 
                 using (var stream = new FileStream(pdfFilePath, FileMode.Create))
                 {
-                    OxyPlot.SkiaSharp.PdfExporter.Export(PlotModel, stream, 600, 400);
+                    OxyPlot.SkiaSharp.PdfExporter.Export(CountChannelPlotModel, stream, 600, 400);
                 }
 
                 UpdatePlotColor(DEFAULT_PLOT_COLOR);
@@ -208,58 +191,34 @@ namespace DAQSystem.Application.UI
             }
         }
 
-        private bool CanCalculateGaussian() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
+        private bool CanOpenFitGaussianDialog() => true; // CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
-        [RelayCommand(CanExecute = nameof(CanCalculateGaussian))]
-        private void CalculateFitGaussianAndUpdatePlot()
+        [RelayCommand(CanExecute = nameof(CanOpenFitGaussianDialog))]
+        private void OpenFitGaussianDialog() 
         {
-            try 
+            var fitGaussianViewModel = new FitGaussianViewModel(CountChannelPlotModel, rawData_, fittedPlotData_);
+            var fitGaussianWindow = new FitGaussianDialog
             {
-                Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+                DataContext = fitGaussianViewModel,
+                Owner = UIUtils.GetActiveWindow()
+            };
 
-                if (!frequencyDictionary.Any(x => x.Key == GaussianRangeOnXStart) ||
-                    !frequencyDictionary.Any(x => x.Key == GaussianRangeOnXEnd) ||
-                    GaussianRangeOnXStart >= GaussianRangeOnXEnd)
-                {
-                    UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"{Theme.GetString(Strings.Parameter)} {Theme.GetString(Strings.Error)}", MessageType.Warning);
-                }
+            fitGaussianWindow.ShowDialog();
+        }
 
-                IsCalculationFadePlaying = true;
+        private bool CanOpenChannelToEnergyDialog() => true; // CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
-                var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).OrderBy(x => x).ToArray();
-                var yData = xData.Select(k => frequencyDictionary[k]).ToArray();
-
-                var result = FitGaussian(xData, yData);
-
-                GaussianAmplitude = result[0];
-                GaussianMean = result[1];
-                GaussianSigma = result[2];
-                logger_.Info($"Fit Gaussian result: Amplitude:{GaussianAmplitude}, Mean:{GaussianMean}, Sigma:{GaussianSigma}");
-
-                fittedPlotData_ ??= new ScatterSeries
-                {
-                    MarkerType = MarkerType.Circle,
-                    MarkerSize = 2,
-                    MarkerFill = DEFAULT_FITTED_PLOT_COLOR
-                };
-
-                for (int i = 0; i < xData.Length; i++)
-                {
-                    var fittedY = (Gaussian(xData[i], GaussianAmplitude, GaussianMean, GaussianSigma));
-                    var adcCountPair = new ScatterPoint(xData[i], fittedY);
-                    fittedPlotData_.Points.Add(adcCountPair);
-                }
-
-                if (!PlotModel.Series.Contains(fittedPlotData_))
-                    PlotModel.Series.Add(fittedPlotData_);
-
-                PlotModel.InvalidatePlot(true);
-                logger_.Info($"Fitted plot updated");
-            }
-            catch (Exception ex) 
+        [RelayCommand(CanExecute = nameof(CanOpenChannelToEnergyDialog))]
+        private void OpenChannelToEnergyDialog() 
+        {
+            var channelToEnergyViewModel = new ChannelToEnergyViewModel();
+            var channelToEnergyWindow = new ChannelToEnergyDialog
             {
-                UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
-            }
+                DataContext = channelToEnergyViewModel,
+                Owner = UIUtils.GetActiveWindow()
+            };
+
+            channelToEnergyWindow.ShowDialog();
         }
 
         private void ResetAllData()
@@ -268,9 +227,6 @@ namespace DAQSystem.Application.UI
             ProgressCounter = 0;
             plotData_.Points.Clear();
             fittedPlotData_?.Points.Clear();
-            GaussianAmplitude = 0;
-            GaussianMean = 0;
-            GaussianSigma = 0;
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig, DAQConfiguration daqConfig)
@@ -283,24 +239,23 @@ namespace DAQSystem.Application.UI
 
             SettingCommands = new()
             {
-                { new CommandControl() { CommandType = CommandTypes.SetCollectDuration, Value = daqConfig_.CollectDuration } },
-                { new CommandControl() { CommandType = CommandTypes.SetInitialThreshold, Value = daqConfig_.InitialThreshold } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalSign, Value = daqConfig_.SignalSign } },
-                { new CommandControl() { CommandType = CommandTypes.SetSignalBaseline, Value = daqConfig_.SignalBaseline } },
-                { new CommandControl() { CommandType = CommandTypes.SetTimeInterval, Value = daqConfig_.TimeInterval } },
-                { new CommandControl() { CommandType = CommandTypes.SetGain, Value = daqConfig_.Gain } }
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetCollectDuration, Value = daqConfig_.CollectDuration } },
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetInitialThreshold, Value = daqConfig_.InitialThreshold } },
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetSignalSign, Value = daqConfig_.SignalSign } },
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetSignalBaseline, Value = daqConfig_.SignalBaseline } },
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetTimeInterval, Value = daqConfig_.TimeInterval } },
+                { new SettingCommandValuePair() { CommandType = CommandTypes.SetGain, Value = daqConfig_.Gain } }
             };
 
             daqControl_.FilteredDataReceived += OnFilteredDataReceived;
 
             InitializePlot();
             UpdatePlotColor(DEFAULT_PLOT_COLOR);
-            GaussianGridTranslation = TRANSLATION_ANIMAITON_DISTANCE;
         }
 
         private void InitializePlot()
         {
-            PlotModel = new PlotModel()
+            CountChannelPlotModel = new PlotModel()
             {
                 PlotAreaBorderThickness = new OxyThickness(2),
                 DefaultFontSize = 14,
@@ -322,33 +277,42 @@ namespace DAQSystem.Application.UI
                 StringFormat = "0.0"
             };
 
-            PlotModel.Axes.Add(xAxis);
-            PlotModel.Axes.Add(yAxis);
+            CountChannelPlotModel.Axes.Add(xAxis);
+            CountChannelPlotModel.Axes.Add(yAxis);
 
-            plotData_ = new ScatterSeries
+            plotData_ ??= new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 1
             };
 
-            PlotModel.Series.Add(plotData_);
+            fittedPlotData_ ??= new ScatterSeries
+            {
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 2,
+                MarkerFill = DEFAULT_FITTED_PLOT_COLOR
+            };
+
+            CountChannelPlotModel.Series.Add(fittedPlotData_);
+
+            CountChannelPlotModel.Series.Add(plotData_);
         }
 
         private void UpdatePlotColor(OxyColor color)
         {
-            PlotModel.PlotAreaBorderColor = color;
-            PlotModel.TextColor = color;
-            PlotModel.TitleColor = color;
+            CountChannelPlotModel.PlotAreaBorderColor = color;
+            CountChannelPlotModel.TextColor = color;
+            CountChannelPlotModel.TitleColor = color;
 
-            for (int i = 0; i < PlotModel.Axes.Count; i++)
+            for (int i = 0; i < CountChannelPlotModel.Axes.Count; i++)
             {
-                PlotModel.Axes[i].AxislineColor = color;
-                PlotModel.Axes[i].TicklineColor = color;
+                CountChannelPlotModel.Axes[i].AxislineColor = color;
+                CountChannelPlotModel.Axes[i].TicklineColor = color;
             }
 
             plotData_.MarkerFill = color;
 
-            PlotModel.InvalidatePlot(true);
+            CountChannelPlotModel.InvalidatePlot(true);
         }
 
         public async Task CleanUp()
@@ -384,45 +348,9 @@ namespace DAQSystem.Application.UI
                         }
                         syncContextProxy_.ExecuteInSyncContext(() => { ProgressCounter++; });
                     }
-                    PlotModel.InvalidatePlot(true);
+                    CountChannelPlotModel.InvalidatePlot(true);
                 }
             });
-        }
-
-        private static double Gaussian(double x, double a, double b, double c)
-        {
-            return a * Math.Exp(-Math.Pow((x - b), 2) / (2 * Math.Pow(c, 2)));
-        }
-
-        private static double[] FitGaussian(int[] xData, int[] yData)
-        {
-            var a = yData.Max();
-            var b = xData[Array.IndexOf(yData, a)];
-
-            double meanX = yData.Select((y, i) => xData[i] * y).Sum() / yData.Sum();
-            double c = Math.Sqrt(yData.Select((y, i) => y * Math.Pow(xData[i] - meanX, 2)).Sum() / yData.Sum());
-
-            Func<Vector<double>, double> targetFunction = p =>
-            {
-                double amplitude = p[0];
-                double mean = p[1];
-                double sigma = p[2];
-                double residual = 0.0;
-
-                for (int i = 0; i < xData.Length; i++)
-                {
-                    double predicted = Gaussian(xData[i], amplitude, mean, sigma);
-                    residual += Math.Pow(yData[i] - predicted, 2);
-                }
-                return residual;
-            };
-
-            var initialGuess = Vector<double>.Build.DenseOfArray(new double[] { a, b, c });
-
-            var optimizer = new NelderMeadSimplex(1e-6, 2000);
-            var result = optimizer.FindMinimum(ObjectiveFunction.Value(targetFunction), initialGuess);
-
-            return result.MinimizingPoint.ToArray();
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -436,18 +364,6 @@ namespace DAQSystem.Application.UI
                     break;
                 case nameof(ProgressCounter):
                     IsRendering = ProgressCounter != rawData_.Count;
-                    break;
-                case nameof(CurrentStatus):
-                    if (CurrentStatus == AppStatus.Connected && rawData_.Count == 0)
-                    {
-                        IsGaussianTranslateInPlaying = true;
-                        GaussianGridTranslation = 0;
-                    }
-                    else if(CurrentStatus == AppStatus.Idle)
-                    {
-                        IsGaussianTranslateOutPlaying = true;
-                        GaussianGridTranslation = TRANSLATION_ANIMAITON_DISTANCE;
-                    }
                     break;
             }
         }
@@ -488,7 +404,7 @@ namespace DAQSystem.Application.UI
         private ScatterSeries plotData_;
         private ScatterSeries fittedPlotData_;
 
-        public partial class CommandControl : ObservableObject
+        public partial class SettingCommandValuePair : ObservableObject
         {
             [ObservableProperty]
             private CommandTypes commandType;

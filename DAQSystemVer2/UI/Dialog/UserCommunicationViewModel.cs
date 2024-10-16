@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using DAQSystem.Common.UI;
 
-namespace DAQSystem.Application.UI
+namespace DAQSystem.Application.UI.Dialog
 {
     public enum MessageType
     {

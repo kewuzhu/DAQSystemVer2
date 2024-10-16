@@ -174,7 +174,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-   
+
     <Style x:Key="{x:Type ToggleButton}"
            BasedOn="{StaticResource DAQSystem.BaseButtonStyle}"
            TargetType="{x:Type ToggleButton}"/>

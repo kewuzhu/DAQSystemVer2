@@ -1,16 +1,15 @@
 ﻿using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.UI;
+using DAQSystem.Application.UI.Dialog;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.Utility;
 using DAQSystem.DataAcquisition;
 using NLog;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Markup;
 
 namespace DAQSystem.Application
 {

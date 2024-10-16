@@ -3,6 +3,7 @@
     internal static class Strings
     {
         public const string Cancel = "DAQSystem.Common.Cancel";
+        public const string Close = "DAQSystem.Common.Close";
         public const string No = "DAQSystem.Common.No";
         public const string OK = "DAQSystem.Common.OK";
         public const string Title = "DAQSystem.Common.Title";
@@ -11,13 +12,18 @@
         public const string Amplitude = "DAQSystem.Application.Amplitude";
         public const string Calculate = "DAQSystem.Application.Calculate";
         public const string ChangePath = "DAQSystem.Application.ChangePath";
+        public const string ChannelToEnergy = "DAQSystem.Application.ChannelToEnergy";
         public const string CollectDuration = "DAQSystem.Application.CollectDuration";
+        public const string CountChannel = "DAQSystem.Application.CollectDuration";
+        public const string CountEnergy = "DAQSystem.Application.CollectDuration";
         public const string Error = "DAQSystem.Application.Error";
         public const string ExportPlotToPdf = "DAQSystem.Application.ExportPlotToPdf";
         public const string FitGaussian = "DAQSystem.Application.FitGaussian";
         public const string From = "DAQSystem.Application.From";
         public const string Gain = "DAQSystem.Application.Gain";
         public const string InitialThreshold = "DAQSystem.Application.InitialThreshold";
+        public const string MaximumAt = "DAQSystem.Application.MaximumCount";
+        public const string MaximumCount = "DAQSystem.Application.MaximumCount";
         public const string Mean = "DAQSystem.Application.Mean";
         public const string Negative = "DAQSystem.Application.Negative";
         public const string Notice = "DAQSystem.Application.Notice";

@@ -10,6 +10,8 @@
                 <ResourceDictionary Source="Themes/ComboBox.xaml" />
                 <ResourceDictionary Source="Themes/Colors.xaml" />
                 <ResourceDictionary Source="Themes/Constants.xaml" />
+                <ResourceDictionary Source="Themes/DataGrid.xaml" />
+                <ResourceDictionary Source="Themes/ListBox.xaml" />
                 <ResourceDictionary Source="Themes/ListView.xaml" />
                 <ResourceDictionary Source="Themes/ProgressBar.xaml" />
                 <ResourceDictionary Source="Themes/RadioButton.xaml" />

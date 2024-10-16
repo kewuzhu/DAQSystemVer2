@@ -1,4 +1,4 @@
-﻿using DAQSystem.Application.UI;
+﻿using DAQSystem.Application.UI.Dialog;
 using NLog;
 using System.Media;
 
