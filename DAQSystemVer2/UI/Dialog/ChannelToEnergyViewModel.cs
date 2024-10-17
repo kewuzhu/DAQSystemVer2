@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DAQSystem.Application.Model;
+using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.UI;
 using MathNet.Numerics;
@@ -32,6 +33,12 @@ namespace DAQSystem.Application.UI.Dialog
         [RelayCommand(CanExecute = nameof(CanCalculate))]
         private void Calculate()
         {
+            if (PairData.Count < 2)
+            {
+                logger_.Info("Not enuf points to fit a linear equation");
+                return;
+            }
+                
             var channels = new List<double>();
             var energies = new List<double>();
 
@@ -47,7 +54,7 @@ namespace DAQSystem.Application.UI.Dialog
             logger_.Info($"Coefficient:{p.B} Constant:{p.A}");
             LinearEquationParametersChanged?.Invoke(this, new LinearEquationParameters() { Coefficient = p.B, Constant = p.A });
 
-            UserCommunication.ShowMessage("","",MessageType.Info);
+            UserCommunication.ShowMessage($"{Theme.GetString(Strings.Notice)}",$"{Theme.GetString(Strings.ChannelToEnergy)}{Theme.GetString(Strings.Calculate)}{Theme.GetString(Strings.Success)}",MessageType.Info);
         }
 
         public ChannelToEnergyViewModel()
@@ -61,8 +68,6 @@ namespace DAQSystem.Application.UI.Dialog
 
             if (collection?.Count > 1)
                 CanCalculate = true;
-
-            logger_.Info($"New Data Added PairData count:{collection.Count}");
         }
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
