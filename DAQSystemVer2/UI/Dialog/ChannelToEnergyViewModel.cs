@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DAQSystem.Application.Model;
+using DAQSystem.Application.Utility;
 using DAQSystem.Common.UI;
 using MathNet.Numerics;
 using NLog;
@@ -45,6 +46,8 @@ namespace DAQSystem.Application.UI.Dialog
 
             logger_.Info($"Coefficient:{p.B} Constant:{p.A}");
             LinearEquationParametersChanged?.Invoke(this, new LinearEquationParameters() { Coefficient = p.B, Constant = p.A });
+
+            UserCommunication.ShowMessage("","",MessageType.Info);
         }
 
         public ChannelToEnergyViewModel()

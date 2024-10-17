@@ -77,9 +77,6 @@ namespace DAQSystem.Application.UI
         private PlotTypes currentPlotType;
 
         [ObservableProperty]
-        private bool canSwitchPlotType;
-
-        [ObservableProperty]
         private bool isSettingFadePlaying;
 
         [ObservableProperty]
@@ -448,18 +445,20 @@ namespace DAQSystem.Application.UI
 
             energyChannelPlotData_.Points.Clear();
 
-            await Task.Run(() =>
+            foreach (var point in countChannelPlotData_.Points)
             {
-                foreach (var point in countChannelPlotData_.Points)
+                await Task.Run(() =>
                 {
-                    var pointX = point.X;
-                    var pointY = point.X * ChannelToEnergyParameters.Coefficient + ChannelToEnergyParameters.Constant;
-                    energyChannelPlotData_.Points.Add(new ScatterPoint(pointX, pointY));
-                }
+                    lock (energyChannelPlotData_.Points) 
+                    {
+                        var pointX = point.X;
+                        var pointY = point.X * ChannelToEnergyParameters.Coefficient + ChannelToEnergyParameters.Constant;
+                        energyChannelPlotData_.Points.Add(new ScatterPoint(pointX, pointY));
+                    }
+                });
+            }
 
-                EnergyChannelPlotModel.InvalidatePlot(true);
-            });
-            CanSwitchPlotType = true;
+            EnergyChannelPlotModel.InvalidatePlot(true);
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)

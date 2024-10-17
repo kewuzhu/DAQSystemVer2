@@ -6,6 +6,7 @@
         public const string Close = "DAQSystem.Common.Close";
         public const string No = "DAQSystem.Common.No";
         public const string OK = "DAQSystem.Common.OK";
+        public const string Success = "DAQSystem.Common.Success";
         public const string Title = "DAQSystem.Common.Title";
         public const string Yes = "DAQSystem.Common.Yes";
 
@@ -15,7 +16,7 @@
         public const string ChannelToEnergy = "DAQSystem.Application.ChannelToEnergy";
         public const string CollectDuration = "DAQSystem.Application.CollectDuration";
         public const string CountChannel = "DAQSystem.Application.CollectDuration";
-        public const string CountEnergy = "DAQSystem.Application.CollectDuration";
+        public const string EnergyChannel = "DAQSystem.Application.EnergyChannel";
         public const string Error = "DAQSystem.Application.Error";
         public const string ExportPlotToPdf = "DAQSystem.Application.ExportPlotToPdf";
         public const string FitGaussian = "DAQSystem.Application.FitGaussian";

@@ -7,6 +7,7 @@
     <system:String x:Key="DAQSystem.Common.Close">Close</system:String>
     <system:String x:Key="DAQSystem.Common.No">No</system:String>
     <system:String x:Key="DAQSystem.Common.OK">OK</system:String>
+    <system:String x:Key="DAQSystem.Common.Success">Success</system:String>
     <system:String x:Key="DAQSystem.Common.Title">DAQSystem</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
@@ -16,7 +17,7 @@
     <system:String x:Key="DAQSystem.Application.ChannelToEnergy">Channel To Energy</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">Collect Duration</system:String>
     <system:String x:Key="DAQSystem.Application.CountChannel">Count Channel</system:String>
-    <system:String x:Key="DAQSystem.Application.CountEnergy">Count Energy</system:String>
+    <system:String x:Key="DAQSystem.Application.EnergyChannel">Energy Channel</system:String>
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">Export Plot To Pdf</system:String>
     <system:String x:Key="DAQSystem.Application.FitGaussian">Fit Gaussian</system:String>

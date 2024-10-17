@@ -133,15 +133,15 @@
                         <Style TargetType="Grid">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.CountEnergy}">
+                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.EnergyChannel}">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsPlotFadePlaying}" Value="True">
                                     <DataTrigger.EnterActions>
-                                        <BeginStoryboard x:Name="ShowCountEnergyPlot" Storyboard="{StaticResource FadeInAnimation}"/>
+                                        <BeginStoryboard x:Name="ShowEnergyChannelPlot" Storyboard="{StaticResource FadeInAnimation}"/>
                                     </DataTrigger.EnterActions>
                                     <DataTrigger.ExitActions>
-                                        <RemoveStoryboard BeginStoryboardName="ShowCountEnergyPlot" />
+                                        <RemoveStoryboard BeginStoryboardName="ShowEnergyChannelPlot" />
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -183,9 +183,8 @@
                             Grid.Column="2"
                             GroupName="PlotSwitch"
                             HorizontalAlignment="Center"
-                            Content="{StaticResource DAQSystem.Application.CountEnergy}"
-                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountEnergy}}"
-                            IsEnabled="{Binding CanSwitchPlotType}">
+                            Content="{StaticResource DAQSystem.Application.EnergyChannel}"
+                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.EnergyChannel}}">
                         </RadioButton>
                     </Grid>
                 </Grid>

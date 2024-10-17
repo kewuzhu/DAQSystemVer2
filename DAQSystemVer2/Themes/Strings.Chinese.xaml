@@ -25,6 +25,7 @@
     <system:String x:Key="DAQSystem.Common.Close">关闭</system:String>
     <system:String x:Key="DAQSystem.Common.No">否</system:String>
     <system:String x:Key="DAQSystem.Common.OK">OK</system:String>
+    <system:String x:Key="DAQSystem.Common.Success">成功</system:String>
     <system:String x:Key="DAQSystem.Common.Title">多道系统</system:String>
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
@@ -34,7 +35,7 @@
     <system:String x:Key="DAQSystem.Application.ChannelToEnergy">道数到能量</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">采集时间</system:String>
     <system:String x:Key="DAQSystem.Application.CountChannel">计数 道数</system:String>
-    <system:String x:Key="DAQSystem.Application.CountEnergy">计数 能量</system:String>
+    <system:String x:Key="DAQSystem.Application.EnergyChannel">能量 道数</system:String>
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">输出图表为PDF</system:String>
     <system:String x:Key="DAQSystem.Application.FitGaussian">高斯拟合</system:String>
