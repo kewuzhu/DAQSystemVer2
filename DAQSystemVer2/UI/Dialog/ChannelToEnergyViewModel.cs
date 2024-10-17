@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using DAQSystem.Application.Model;
 using DAQSystem.Common.UI;
-using Microsoft.VisualBasic;
+using MathNet.Numerics;
 using NLog;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -12,6 +12,8 @@ namespace DAQSystem.Application.UI.Dialog
     internal partial class ChannelToEnergyViewModel : DialogViewModelBase
     {
         public event EventHandler DialogCloseRequested;
+
+        public event EventHandler<LinearEquationParameters> LinearEquationParametersChanged;
 
         public ObservableCollection<ChannelEnergyPair> PairData { get; } = new();
 
@@ -29,10 +31,20 @@ namespace DAQSystem.Application.UI.Dialog
         [RelayCommand(CanExecute = nameof(CanCalculate))]
         private void Calculate()
         {
+            var channels = new List<double>();
+            var energies = new List<double>();
+
             foreach (var d in PairData) 
             {
                 logger_.Info($"Channel:{d.Channel} Energy:{d.Energy}");
+                channels.Add(d.Channel);
+                energies.Add(d.Energy);
             }
+
+            var p = Fit.Line(channels.ToArray(), energies.ToArray());
+
+            logger_.Info($"Coefficient:{p.B} Constant:{p.A}");
+            LinearEquationParametersChanged?.Invoke(this, new LinearEquationParameters() { Coefficient = p.B, Constant = p.A });
         }
 
         public ChannelToEnergyViewModel()

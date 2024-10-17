@@ -21,6 +21,7 @@
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">Export Plot To Pdf</system:String>
     <system:String x:Key="DAQSystem.Application.FitGaussian">Fit Gaussian</system:String>
     <system:String x:Key="DAQSystem.Application.From">From</system:String>
+    <system:String x:Key="DAQSystem.Application.Functions">Functions</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">Gain</system:String>
     <system:String x:Key="DAQSystem.Application.InitialThreshold">Initial Threshold</system:String>
     <system:String x:Key="DAQSystem.Application.MaximumAt">Maximum At</system:String>

@@ -39,6 +39,7 @@
     <system:String x:Key="DAQSystem.Application.ExportPlotToPdf">输出图表为PDF</system:String>
     <system:String x:Key="DAQSystem.Application.FitGaussian">高斯拟合</system:String>
     <system:String x:Key="DAQSystem.Application.From">从</system:String>
+    <system:String x:Key="DAQSystem.Application.Functions">函数</system:String>
     <system:String x:Key="DAQSystem.Application.Gain">增益值</system:String>
     <system:String x:Key="DAQSystem.Application.InitialThreshold">起始阈值</system:String>
     <system:String x:Key="DAQSystem.Application.MaximumAt">最大计数在</system:String>

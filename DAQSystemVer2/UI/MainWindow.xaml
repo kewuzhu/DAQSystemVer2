@@ -17,21 +17,21 @@
         Width="900">
 
     <Window.Resources>
-            <Storyboard x:Key="FadeInAnimation" Completed="OnAnimationCompleted">
-        <DoubleAnimation
+        <Storyboard x:Key="FadeInAnimation" Completed="OnAnimationCompleted">
+            <DoubleAnimation
             Storyboard.TargetProperty="Opacity"
             From="0"
             To="1"
             Duration="0:0:.45" />
-    </Storyboard>
+        </Storyboard>
 
-    <Storyboard x:Key="SlideInStoryboard" Completed="OnAnimationCompleted">
-        <DoubleAnimation
+        <Storyboard x:Key="SlideInStoryboard" Completed="OnAnimationCompleted">
+            <DoubleAnimation
             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
             From="500"
             To="0"
             Duration="0:0:.45" />
-    </Storyboard>
+        </Storyboard>
 
         <Storyboard x:Key="SlideOutStoryboard" Completed="OnAnimationCompleted">
             <DoubleAnimation
@@ -101,14 +101,60 @@
                     <RowDefinition Height="5"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <oxy:PlotView
-                    Grid.Row="0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontWeight="Normal"
-                    FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
-                    Model="{Binding CountChannelPlotModel}">
-                </oxy:PlotView>
+                <Grid Grid.Row="0">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.CountChannel}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPlotFadePlaying}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard x:Name="ShowCountChannelPlot" Storyboard="{StaticResource FadeInAnimation}"/>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <RemoveStoryboard BeginStoryboardName="ShowCountChannelPlot" />
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <oxy:PlotView
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontWeight="Normal"
+                        FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
+                        Model="{Binding CountChannelPlotModel}">
+                    </oxy:PlotView>
+                </Grid>
+                <Grid Grid.Row="0">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.CountEnergy}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPlotFadePlaying}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard x:Name="ShowCountEnergyPlot" Storyboard="{StaticResource FadeInAnimation}"/>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <RemoveStoryboard BeginStoryboardName="ShowCountEnergyPlot" />
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <oxy:PlotView
+                        Background="Transparent"
+                        BorderThickness="0"
+                        FontWeight="Normal"
+                        FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
+                        Model="{Binding CountEnergyPlotModel}">
+                    </oxy:PlotView>
+                </Grid>
                 <ProgressBar
                     Grid.Row="2"
                     Minimum="0"
@@ -117,51 +163,31 @@
                 <Grid Grid.Row="4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <RadioButton
-                        Grid.Column="0"
-                        Content="{StaticResource DAQSystem.Application.CountChannel}"
-                        HorizontalAlignment="Center"
-                        GroupName="PlotSwitch"
-                        IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, Mode=TwoWay}">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
-                                <Setter Property="IsEnabled" Value="False" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="IsEnabled" Value="True" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
-                    <RadioButton
-                        Grid.Column="2"
-                        GroupName="PlotSwitch"
-                        HorizontalAlignment="Center"
-                        Content="{StaticResource DAQSystem.Application.CountEnergy}"
-                        IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, ConverterParameter=inverse, Mode=TwoWay}">
-                        <RadioButton.Style>
-                            <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
-                                <Setter Property="IsEnabled" Value="False" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="IsEnabled" Value="True" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </RadioButton.Style>
-                    </RadioButton>
+                    <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <RadioButton
+                            Grid.Column="0"
+                            Content="{StaticResource DAQSystem.Application.CountChannel}"
+                            HorizontalAlignment="Center"
+                            GroupName="PlotSwitch"
+                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountChannel}}">
+                        </RadioButton>
+                        <RadioButton
+                            Grid.Column="2"
+                            GroupName="PlotSwitch"
+                            HorizontalAlignment="Center"
+                            Content="{StaticResource DAQSystem.Application.CountEnergy}"
+                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountEnergy}}"
+                            IsEnabled="{Binding CanSwitchPlotType}">
+                        </RadioButton>
+                    </Grid>
                 </Grid>
             </Grid>
             <Grid
@@ -362,7 +388,7 @@
                         </Button>
                     </Grid>
                     <Grid Grid.Row="4">
-                        <GroupBox Header="Functions">
+                        <GroupBox Header="{StaticResource DAQSystem.Application.Functions}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition />

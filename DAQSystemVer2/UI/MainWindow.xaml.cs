@@ -17,6 +17,7 @@ namespace DAQSystem.Application.UI
             var dataContext = DataContext as MainWindowViewModel;
 
             dataContext.IsSettingFadePlaying = false;
+            dataContext.IsPlotFadePlaying = false;
         }
     }
 }

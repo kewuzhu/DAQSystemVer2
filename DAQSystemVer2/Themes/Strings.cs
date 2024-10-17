@@ -20,6 +20,7 @@
         public const string ExportPlotToPdf = "DAQSystem.Application.ExportPlotToPdf";
         public const string FitGaussian = "DAQSystem.Application.FitGaussian";
         public const string From = "DAQSystem.Application.From";
+        public const string Functions = "DAQSystem.Application.Functions";
         public const string Gain = "DAQSystem.Application.Gain";
         public const string InitialThreshold = "DAQSystem.Application.InitialThreshold";
         public const string MaximumAt = "DAQSystem.Application.MaximumCount";

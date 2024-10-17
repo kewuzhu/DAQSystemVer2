@@ -1,4 +1,5 @@
 ﻿using DAQSystem.Common.UI;
+using System.ComponentModel;
 using System.Windows;
 
 namespace DAQSystem.Application.UI.Dialog
@@ -11,13 +12,12 @@ namespace DAQSystem.Application.UI.Dialog
         public ChannelToEnergyDialog()
         {
             InitializeComponent();
-
-            var dataContext = DataContext as ChannelToEnergyViewModel;
-            if (dataContext != null)
-            {
-                dataContext.DialogCloseRequested += (s, e) => this.Close();
-            }
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
+        }
     }
 }

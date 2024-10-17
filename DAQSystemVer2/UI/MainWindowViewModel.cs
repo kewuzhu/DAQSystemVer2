@@ -10,9 +10,11 @@ using DAQSystem.DataAcquisition;
 using NLog;
 using OxyPlot;
 using OxyPlot.Series;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 
 namespace DAQSystem.Application.UI
 {
@@ -63,6 +65,9 @@ namespace DAQSystem.Application.UI
         private PlotModel countChannelPlotModel;
 
         [ObservableProperty]
+        private PlotModel countEnergyPlotModel;
+
+        [ObservableProperty]
         private SettingCommandValuePair selectedSettingCommand;
 
         [ObservableProperty]
@@ -72,7 +77,19 @@ namespace DAQSystem.Application.UI
         private PlotTypes currentPlotType;
 
         [ObservableProperty]
+        private bool canSwitchPlotType;
+
+        [ObservableProperty]
         private bool isSettingFadePlaying;
+
+        [ObservableProperty]
+        private bool isPlotFadePlaying;
+
+        [ObservableProperty]
+        private FitGaussianDialog fitGaussianWindow;
+
+        [ObservableProperty]
+        private ChannelToEnergyDialog channelToEnergyWindow;
 
         private bool CanExportPlotToPdf() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
@@ -89,7 +106,7 @@ namespace DAQSystem.Application.UI
 
                 using (var stream = new FileStream(pdfFilePath, FileMode.Create))
                 {
-                    OxyPlot.SkiaSharp.PdfExporter.Export(CountChannelPlotModel, stream, 600, 400);
+                    OxyPlot.SkiaSharp.PdfExporter.Export(CurrentPlotType == PlotTypes.CountChannel ? CountChannelPlotModel : CountEnergyPlotModel, stream, 600, 400);
                 }
 
                 UpdatePlotColor(DEFAULT_PLOT_COLOR);
@@ -100,7 +117,6 @@ namespace DAQSystem.Application.UI
             {
                 UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"Message:{ex.Message}\nStackTrace:{ex.StackTrace}", MessageType.Warning);
             }
-            
         }
 
         [RelayCommand]
@@ -191,42 +207,75 @@ namespace DAQSystem.Application.UI
             }
         }
 
-        private bool CanOpenFitGaussianDialog() => true; // CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
+        private bool CanOpenFitGaussianDialog() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
         [RelayCommand(CanExecute = nameof(CanOpenFitGaussianDialog))]
         private void OpenFitGaussianDialog() 
         {
-            var fitGaussianViewModel = new FitGaussianViewModel(CountChannelPlotModel, rawData_, fittedPlotData_);
-            var fitGaussianWindow = new FitGaussianDialog
+            logger_.Info($"{nameof(FitGaussianWindow)} showing.");
+            if (FitGaussianWindow != null)
             {
-                DataContext = fitGaussianViewModel,
+                FitGaussianWindow.Show();
+                return;
+            }
+
+            fitGaussianViewModel_ ??= new FitGaussianViewModel(CountChannelPlotModel, rawData_, fittedCountChannelPlotData_);
+            
+            FitGaussianWindow ??= new FitGaussianDialog
+            {
+                DataContext = fitGaussianViewModel_,
                 Owner = UIUtils.GetActiveWindow()
             };
 
-            fitGaussianWindow.ShowDialog();
+            fitGaussianViewModel_.DialogCloseRequested += (s, e) => 
+                {
+                    logger_.Info($"{nameof(FitGaussianWindow)} closing.");
+                    FitGaussianWindow.Close(); 
+                };
+
+            FitGaussianWindow.ShowDialog();
         }
 
-        private bool CanOpenChannelToEnergyDialog() => true; // CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
+        private bool CanOpenChannelToEnergyDialog() => CurrentStatus == AppStatus.Connected && ProgressCounter != 0 && ProgressCounter == rawData_.Count;
 
         [RelayCommand(CanExecute = nameof(CanOpenChannelToEnergyDialog))]
         private void OpenChannelToEnergyDialog() 
         {
-            var channelToEnergyViewModel = new ChannelToEnergyViewModel();
-            var channelToEnergyWindow = new ChannelToEnergyDialog
+            logger_.Info($"{nameof(ChannelToEnergyWindow)} showing.");
+            
+            if (ChannelToEnergyWindow != null)
             {
-                DataContext = channelToEnergyViewModel,
+                channelToEnergyViewModel_.LinearEquationParametersChanged += OnLinearEquationParametersChanged;
+                ChannelToEnergyWindow.Show();
+                return;
+            }
+
+            channelToEnergyViewModel_ ??= new ChannelToEnergyViewModel();
+            ChannelToEnergyWindow ??= new ChannelToEnergyDialog
+            {
+                DataContext = channelToEnergyViewModel_,
                 Owner = UIUtils.GetActiveWindow()
             };
 
-            channelToEnergyWindow.ShowDialog();
+            channelToEnergyViewModel_.DialogCloseRequested += (s, e) => 
+                {
+                    logger_.Info($"{nameof(ChannelToEnergyWindow)} closing.");
+                    channelToEnergyViewModel_.LinearEquationParametersChanged -= OnLinearEquationParametersChanged;
+                    ChannelToEnergyWindow.Close(); 
+                };
+
+            channelToEnergyViewModel_.LinearEquationParametersChanged += OnLinearEquationParametersChanged;
+            ChannelToEnergyWindow.ShowDialog();
         }
 
         private void ResetAllData()
         {
             rawData_.Clear();
             ProgressCounter = 0;
-            plotData_.Points.Clear();
-            fittedPlotData_?.Points.Clear();
+            countChannelPlotData_.Points.Clear();
+            fittedCountChannelPlotData_?.Points.Clear();
+            countEnergyPlotData_.Points.Clear();
+            fittedCountEnergyPlotData_?.Points.Clear();
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig, DAQConfiguration daqConfig)
@@ -249,6 +298,7 @@ namespace DAQSystem.Application.UI
 
             daqControl_.FilteredDataReceived += OnFilteredDataReceived;
 
+            CurrentPlotType = PlotTypes.CountChannel;
             InitializePlot();
             UpdatePlotColor(DEFAULT_PLOT_COLOR);
         }
@@ -261,15 +311,29 @@ namespace DAQSystem.Application.UI
                 DefaultFontSize = 14,
             };
 
-            var xAxis = new OxyPlot.Axes.LinearAxis
+            CountEnergyPlotModel = new PlotModel()
+            {
+                PlotAreaBorderThickness = new OxyThickness(2),
+                DefaultFontSize = 14,
+            };
+
+            var xAxisChannel = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
                 Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = "ADC Channel",
-                StringFormat = "0"
+                StringFormat = "0.0"
             };
 
-            var yAxis = new OxyPlot.Axes.LinearAxis
+            var xAxisEnergy = new OxyPlot.Axes.LinearAxis
+            {
+                AxislineThickness = 2,
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                Title = "Energy",
+                StringFormat = "0.0"
+            };
+
+            var yAxisChannel = new OxyPlot.Axes.LinearAxis
             {
                 AxislineThickness = 2,
                 Position = OxyPlot.Axes.AxisPosition.Left,
@@ -277,25 +341,50 @@ namespace DAQSystem.Application.UI
                 StringFormat = "0.0"
             };
 
-            CountChannelPlotModel.Axes.Add(xAxis);
-            CountChannelPlotModel.Axes.Add(yAxis);
+            var yAxisEnergy = new OxyPlot.Axes.LinearAxis
+            {
+                AxislineThickness = 2,
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                Title = "Count",
+                StringFormat = "0.0"
+            };
 
-            plotData_ ??= new ScatterSeries
+            CountChannelPlotModel.Axes.Add(xAxisChannel);
+            CountChannelPlotModel.Axes.Add(yAxisChannel);
+            CountEnergyPlotModel.Axes.Add(xAxisEnergy);
+            CountEnergyPlotModel.Axes.Add(yAxisEnergy);
+
+            countChannelPlotData_ = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 1
             };
 
-            fittedPlotData_ ??= new ScatterSeries
+            countEnergyPlotData_ = new ScatterSeries
+            {
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 1
+            };
+
+            fittedCountChannelPlotData_ = new ScatterSeries
             {
                 MarkerType = MarkerType.Circle,
                 MarkerSize = 2,
                 MarkerFill = DEFAULT_FITTED_PLOT_COLOR
             };
 
-            CountChannelPlotModel.Series.Add(fittedPlotData_);
+            fittedCountEnergyPlotData_ = new ScatterSeries
+            {
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 2,
+                MarkerFill = DEFAULT_FITTED_PLOT_COLOR
+            };
 
-            CountChannelPlotModel.Series.Add(plotData_);
+            CountChannelPlotModel.Series.Add(countChannelPlotData_);
+            CountChannelPlotModel.Series.Add(fittedCountChannelPlotData_);
+
+            CountEnergyPlotModel.Series.Add(countEnergyPlotData_);
+            CountEnergyPlotModel.Series.Add(fittedCountEnergyPlotData_);
         }
 
         private void UpdatePlotColor(OxyColor color)
@@ -304,15 +393,24 @@ namespace DAQSystem.Application.UI
             CountChannelPlotModel.TextColor = color;
             CountChannelPlotModel.TitleColor = color;
 
+            CountEnergyPlotModel.PlotAreaBorderColor = color;
+            CountEnergyPlotModel.TextColor = color;
+            CountEnergyPlotModel.TitleColor = color;
+
             for (int i = 0; i < CountChannelPlotModel.Axes.Count; i++)
             {
                 CountChannelPlotModel.Axes[i].AxislineColor = color;
                 CountChannelPlotModel.Axes[i].TicklineColor = color;
+
+                CountEnergyPlotModel.Axes[i].AxislineColor = color;
+                CountEnergyPlotModel.Axes[i].TicklineColor = color;
             }
 
-            plotData_.MarkerFill = color;
+            countChannelPlotData_.MarkerFill = color;
+            countEnergyPlotData_.MarkerFill = color;
 
             CountChannelPlotModel.InvalidatePlot(true);
+            CountEnergyPlotModel.InvalidatePlot(true);
         }
 
         public async Task CleanUp()
@@ -331,26 +429,43 @@ namespace DAQSystem.Application.UI
         {
             await Task.Run(() =>
             {
-                lock (plotData_)
+                lock (countChannelPlotData_)
                 {
                     foreach (int d in data)
                     {
-                        if (!plotData_.Points.Any(x => x.X == d))
+                        if (!countChannelPlotData_.Points.Any(x => x.X == d))
                         {
                             var adcCountPair = new ScatterPoint(d, 1);
-                            plotData_.Points.Add(adcCountPair);
+                            countChannelPlotData_.Points.Add(adcCountPair);
                         }
                         else
                         {
-                            var pointToUpdate = plotData_.Points.OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
+                            var pointToUpdate = countChannelPlotData_.Points.OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
-                            plotData_.Points.Add(adcCountPair);
+                            countChannelPlotData_.Points.Add(adcCountPair);
                         }
                         syncContextProxy_.ExecuteInSyncContext(() => { ProgressCounter++; });
                     }
                     CountChannelPlotModel.InvalidatePlot(true);
                 }
             });
+        }
+
+        private void OnLinearEquationParametersChanged(Object sender, LinearEquationParameters p) 
+        {
+            ChannelToEnergyParameters = p;
+
+            countEnergyPlotData_.Points.Clear();
+
+            foreach (var point in countChannelPlotData_.Points) 
+            {
+                var pointX = point.X * ChannelToEnergyParameters.Coefficient + ChannelToEnergyParameters.Constant;
+                var pointY = point.Y;
+                countEnergyPlotData_.Points.Add(new ScatterPoint(pointX, pointY));
+            }
+
+            CountEnergyPlotModel.InvalidatePlot(true);
+            CanSwitchPlotType = true;
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -364,6 +479,10 @@ namespace DAQSystem.Application.UI
                     break;
                 case nameof(ProgressCounter):
                     IsRendering = ProgressCounter != rawData_.Count;
+                    break;
+                case nameof(CurrentPlotType):
+                    IsPlotFadePlaying = true;
+                    logger_.Info($"Current Plot Type switched to {CurrentPlotType}");
                     break;
             }
         }
@@ -401,8 +520,12 @@ namespace DAQSystem.Application.UI
         private readonly List<int> rawData_ = new();
         private readonly SyncContextProxy syncContextProxy_ = new();
 
-        private ScatterSeries plotData_;
-        private ScatterSeries fittedPlotData_;
+        private ScatterSeries countChannelPlotData_;
+        private ScatterSeries countEnergyPlotData_;
+        private ScatterSeries fittedCountChannelPlotData_;
+        private ScatterSeries fittedCountEnergyPlotData_;
+        private ChannelToEnergyViewModel channelToEnergyViewModel_;
+        private FitGaussianViewModel fitGaussianViewModel_;
 
         public partial class SettingCommandValuePair : ObservableObject
         {
