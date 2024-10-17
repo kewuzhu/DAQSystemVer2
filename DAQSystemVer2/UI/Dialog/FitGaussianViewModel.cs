@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DAQSystem.Application.Model;
 using DAQSystem.Application.Themes;
 using DAQSystem.Application.Utility;
 using DAQSystem.Common.UI;
@@ -51,7 +52,7 @@ namespace DAQSystem.Application.UI.Dialog
         {
             try
             {
-                Dictionary<int, int> frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+                var frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
 
                 if (!frequencyDictionary.Any(x => x.Key == GaussianRangeOnXStart) ||
                     !frequencyDictionary.Any(x => x.Key == GaussianRangeOnXEnd) ||
@@ -142,5 +143,6 @@ namespace DAQSystem.Application.UI.Dialog
 
         private List<int> rawData_;
         private ScatterSeries fittedPlotData_;
+        private PlotTypes plotType_;
     }
 }
