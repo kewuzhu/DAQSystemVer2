@@ -152,7 +152,7 @@
                         BorderThickness="0"
                         FontWeight="Normal"
                         FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
-                        Model="{Binding CountEnergyPlotModel}">
+                        Model="{Binding EnergyChannelPlotModel}">
                     </oxy:PlotView>
                 </Grid>
                 <ProgressBar
