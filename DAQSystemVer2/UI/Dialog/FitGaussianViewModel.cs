@@ -20,16 +20,16 @@ namespace DAQSystem.Application.UI.Dialog
         public PlotModel PlotModel { get; }
 
         [ObservableProperty]
-        private int maxAt;
+        private double maxAt;
 
         [ObservableProperty]
         private int maxCount;
 
         [ObservableProperty]
-        private int gaussianRangeOnXStart;
+        private double gaussianRangeOnXStart;
 
         [ObservableProperty]
-        private int gaussianRangeOnXEnd;
+        private double gaussianRangeOnXEnd;
 
         [ObservableProperty]
         private double gaussianAmplitude;
@@ -52,19 +52,33 @@ namespace DAQSystem.Application.UI.Dialog
         {
             try
             {
-                var frequencyDictionary = rawData_.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+                var frequencyDict = new Dictionary<double, int>();
 
-                if (!frequencyDictionary.Any(x => x.Key == GaussianRangeOnXStart) ||
-                    !frequencyDictionary.Any(x => x.Key == GaussianRangeOnXEnd) ||
-                    GaussianRangeOnXStart >= GaussianRangeOnXEnd)
+                foreach (var point in points_)
+                {
+                    var x = point.X;
+
+                    if (frequencyDict.ContainsKey(x))
+                    {
+                        frequencyDict[x]++;
+                    }
+                    else
+                    {
+                        frequencyDict[x] = 1;
+                    }
+                }
+
+                if (GaussianRangeOnXStart >= GaussianRangeOnXEnd ||
+                    !(GaussianRangeOnXStart >= frequencyDict.Keys.Min() && GaussianRangeOnXStart <= frequencyDict.Keys.Max()) ||
+                    !(GaussianRangeOnXEnd >= frequencyDict.Keys.Min() && GaussianRangeOnXEnd <= frequencyDict.Keys.Max()))
                 {
                     UserCommunication.ShowMessage($"{Theme.GetString(Strings.Error)}", $"{Theme.GetString(Strings.Parameter)} {Theme.GetString(Strings.Error)}", MessageType.Warning);
                 }
 
-                GetMaximumPairInfo(frequencyDictionary);
+                GetMaximumPairInfo(frequencyDict);
 
-                var xData = frequencyDictionary.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).OrderBy(x => x).ToArray();
-                var yData = xData.Select(k => frequencyDictionary[k]).ToArray();
+                var xData = frequencyDict.Keys.Where(k => k >= GaussianRangeOnXStart && k <= GaussianRangeOnXEnd).OrderBy(x => x).ToArray();
+                var yData = xData.Select(k => frequencyDict[k]).ToArray();
 
                 var result = FitGaussian(xData, yData);
 
@@ -89,14 +103,14 @@ namespace DAQSystem.Application.UI.Dialog
             }
         }
 
-        public FitGaussianViewModel(PlotModel plotModel, List<int> rawData, ScatterSeries fittedPlotData)
+        public FitGaussianViewModel(PlotModel plotModel, List<ScatterPoint> points, ScatterSeries fittedPlotData)
         {
             PlotModel = plotModel ?? throw new ArgumentNullException(nameof(plotModel));
-            rawData_ = rawData ?? throw new ArgumentNullException(nameof(rawData));
+            points_ = points ?? throw new ArgumentNullException(nameof(points));
             fittedPlotData_ = fittedPlotData ?? throw new ArgumentNullException(nameof(fittedPlotData));
         }
 
-        private void GetMaximumPairInfo(Dictionary<int, int> map)
+        private void GetMaximumPairInfo(Dictionary<double, int> map)
         {
             var maxPair = map.Aggregate((x, y) => x.Value > y.Value ? x : y);
             MaxAt = maxPair.Key;
@@ -108,7 +122,7 @@ namespace DAQSystem.Application.UI.Dialog
             return a * Math.Exp(-Math.Pow((x - b), 2) / (2 * Math.Pow(c, 2)));
         }
 
-        private static double[] FitGaussian(int[] xData, int[] yData)
+        private static double[] FitGaussian(double[] xData, int[] yData)
         {
             var a = yData.Max();
             var b = xData[Array.IndexOf(yData, a)];
@@ -141,8 +155,7 @@ namespace DAQSystem.Application.UI.Dialog
 
         private static readonly Logger logger_ = LogManager.GetCurrentClassLogger();
 
-        private List<int> rawData_;
+        private List<ScatterPoint> points_;
         private ScatterSeries fittedPlotData_;
-        private PlotTypes plotType_;
     }
 }

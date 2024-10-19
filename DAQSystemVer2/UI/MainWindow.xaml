@@ -14,7 +14,7 @@
         Foreground="{StaticResource DAQSystem.DefaultForegroundColor}"
         Background="{StaticResource DAQSystem.WindowBackground}"
         Height="550" 
-        Width="900">
+        Width="940">
 
     <Window.Resources>
         <Storyboard x:Key="FadeInAnimation" Completed="OnAnimationCompleted">
@@ -47,10 +47,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="5"/>
             <RowDefinition />
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="5"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -104,11 +100,7 @@
                 <Grid Grid.Row="0">
                     <Grid.Style>
                         <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.CountChannel}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
                                 <DataTrigger Binding="{Binding IsPlotFadePlaying}" Value="True">
                                     <DataTrigger.EnterActions>
                                         <BeginStoryboard x:Name="ShowCountChannelPlot" Storyboard="{StaticResource FadeInAnimation}"/>
@@ -125,34 +117,7 @@
                         BorderThickness="0"
                         FontWeight="Normal"
                         FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
-                        Model="{Binding CountChannelPlotModel}">
-                    </oxy:PlotView>
-                </Grid>
-                <Grid Grid.Row="0">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.EnergyChannel}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsPlotFadePlaying}" Value="True">
-                                    <DataTrigger.EnterActions>
-                                        <BeginStoryboard x:Name="ShowEnergyChannelPlot" Storyboard="{StaticResource FadeInAnimation}"/>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <RemoveStoryboard BeginStoryboardName="ShowEnergyChannelPlot" />
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-                    <oxy:PlotView
-                        Background="Transparent"
-                        BorderThickness="0"
-                        FontWeight="Normal"
-                        FontFamily="{StaticResource DAQSystem.FixedFontFamily}"
-                        Model="{Binding EnergyChannelPlotModel}">
+                        Model="{Binding MainPlotModel}">
                     </oxy:PlotView>
                 </Grid>
                 <ProgressBar
@@ -165,28 +130,89 @@
                         <ColumnDefinition />
                         <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
                         <ColumnDefinition />
+                        <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0">
+                    <RadioButton
+                        Grid.Column="0"
+                        Content="{StaticResource DAQSystem.Application.CountChannel}"
+                        HorizontalAlignment="Center"
+                        GroupName="PlotSwitch"
+                        IsEnabled="{Binding CanSwitchPlot}"
+                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountChannel}}">
+                    </RadioButton>
+                    <RadioButton
+                        Grid.Column="2"
+                        GroupName="PlotSwitch"
+                        HorizontalAlignment="Center"
+                        Content="{StaticResource DAQSystem.Application.EnergyChannel}"
+                        IsEnabled="{Binding CanSwitchPlot}"
+                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.EnergyChannel}}">
+                    </RadioButton>
+                    <RadioButton
+                        Grid.Column="4"
+                        GroupName="PlotSwitch"
+                        HorizontalAlignment="Center"
+                        Content="{StaticResource DAQSystem.Application.ToLn}"
+                        IsEnabled="{Binding CanSwitchPlot}"
+                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.ToLn}}">
+                    </RadioButton>
+                    <Grid Grid.Column="6">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="{StaticResource DAQSystem.SmallMarginGridLength}"/>
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <RadioButton
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.MergedChannel}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock 
                             Grid.Column="0"
-                            Content="{StaticResource DAQSystem.Application.CountChannel}"
-                            HorizontalAlignment="Center"
-                            GroupName="PlotSwitch"
-                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountChannel}}">
-                        </RadioButton>
-                        <RadioButton
+                            Text="{StaticResource DAQSystem.Application.MergedBy}">
+                        </TextBlock>
+                        <ComboBox 
                             Grid.Column="2"
-                            GroupName="PlotSwitch"
-                            HorizontalAlignment="Center"
-                            Content="{StaticResource DAQSystem.Application.EnergyChannel}"
-                            IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.EnergyChannel}}">
-                        </RadioButton>
+                            ItemsSource="{Binding MergedParameters}"
+                            SelectedItem="{Binding SelectedMergedParameter, Mode=TwoWay}">
+                        </ComboBox>
                     </Grid>
+                    <RadioButton
+                        Grid.Column="6"
+                        GroupName="PlotSwitch"
+                        HorizontalAlignment="Center"
+                        Content="{StaticResource DAQSystem.Application.MergedChannel}"
+                        IsEnabled="{Binding CanSwitchPlot}"
+                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.MergedChannel}}">
+                        <RadioButton.Style>
+                            <Style BasedOn="{StaticResource DAQSystem.BaseRadioButtonStyle}" TargetType="RadioButton">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentPlotType}" Value="{x:Static model:PlotTypes.MergedChannel}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </RadioButton.Style>
+                    </RadioButton>
+                    <RadioButton
+                        Grid.Column="8"
+                        GroupName="PlotSwitch"
+                        HorizontalAlignment="Center"
+                        Content="{StaticResource DAQSystem.Application.BiasCorrection}"
+                        IsEnabled="{Binding CanSwitchPlot}"
+                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.BiasCorrection}}">
+                    </RadioButton>
                 </Grid>
             </Grid>
             <Grid
@@ -415,15 +441,17 @@
                                     Content="{StaticResource DAQSystem.Application.ChannelToEnergy}"
                                     Command="{Binding OpenChannelToEnergyDialogCommand}">
                                 </Button>
+                                <Button
+                                    Grid.Row="4"
+                                    Grid.Column="2"
+                                    Content="{StaticResource DAQSystem.Application.BiasCorrection}"
+                                    Command="{Binding OpenBiasCorrectionDialogCommand}">
+                                </Button>
                             </Grid>
                         </GroupBox>
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
-        <Grid Grid.Row="4">
-        </Grid>
-        <Grid Grid.Row="6">
         </Grid>
     </Grid>
 </Window>

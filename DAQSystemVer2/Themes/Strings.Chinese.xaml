@@ -30,10 +30,13 @@
     <system:String x:Key="DAQSystem.Common.Yes">确定</system:String>
 
     <system:String x:Key="DAQSystem.Application.Amplitude">幅值</system:String>
+    <system:String x:Key="DAQSystem.Application.BiasCorrection">本底修正</system:String>
     <system:String x:Key="DAQSystem.Application.Calculate">计算</system:String>
     <system:String x:Key="DAQSystem.Application.ChangePath">更改路径</system:String>
     <system:String x:Key="DAQSystem.Application.ChannelToEnergy">道数到能量</system:String>
+    <system:String x:Key="DAQSystem.Application.Coefficient">系数</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">采集时间</system:String>
+    <system:String x:Key="DAQSystem.Application.Constant">常量</system:String>
     <system:String x:Key="DAQSystem.Application.CountChannel">计数 道数</system:String>
     <system:String x:Key="DAQSystem.Application.EnergyChannel">能量 道数</system:String>
     <system:String x:Key="DAQSystem.Application.Error">错误</system:String>
@@ -46,6 +49,8 @@
     <system:String x:Key="DAQSystem.Application.MaximumAt">最大计数在</system:String>
     <system:String x:Key="DAQSystem.Application.MaximumCount">最大计数值</system:String>
     <system:String x:Key="DAQSystem.Application.Mean">均值</system:String>
+    <system:String x:Key="DAQSystem.Application.MergedBy">合并每</system:String>
+    <system:String x:Key="DAQSystem.Application.MergedChannel">合并道</system:String>
     <system:String x:Key="DAQSystem.Application.Negative">负信号</system:String>
     <system:String x:Key="DAQSystem.Application.Notice">通知</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">参数</system:String>
@@ -61,6 +66,7 @@
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">停止通信</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">时间门</system:String>
     <system:String x:Key="DAQSystem.Application.To">到</system:String>
+    <system:String x:Key="DAQSystem.Application.ToLn">对数道</system:String>
     <system:String x:Key="DAQSystem.Application.UpdateToPlot">更新图表</system:String>
     <system:String x:Key="DAQSystem.Application.Value">值</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">工作路径:</system:String>

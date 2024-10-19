@@ -3,7 +3,10 @@
     internal enum PlotTypes
     {
         CountChannel,
-        EnergyChannel
+        EnergyChannel,
+        ToLn,
+        MergedChannel,
+        BiasCorrection
     }
 }
 

@@ -1,0 +1,75 @@
+﻿<commonUi:DialogBase
+    x:Class="DAQSystem.Application.UI.Dialog.BiasCorrectionDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:commonUi="clr-namespace:DAQSystem.Common.UI;assembly=DAQSystem.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:dialog="clr-namespace:DAQSystem.Application.UI.Dialog"
+    Width="300"
+    d:DataContext="{d:DesignInstance Type=dialog:BiasCorrectionViewModel}"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ResizeMode="NoResize"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Border
+        Background="{StaticResource DAQSystem.GradientBackgroundBrush}"
+        BorderBrush="Black"
+        BorderThickness="{StaticResource DAQSystem.DefaultBorderThickness}"
+        CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    Text="{StaticResource DAQSystem.Application.Coefficient}">
+                </TextBlock>
+                <TextBox
+                    Grid.Column="2"
+                    Text="{Binding BiasCorrectionParameters.Coefficient}">
+                </TextBox>
+                <TextBlock
+                    Grid.Column="4"
+                    Text="{StaticResource DAQSystem.Application.Constant}">
+                </TextBlock>
+                <TextBox
+                    Grid.Column="6"
+                    Text="{Binding BiasCorrectionParameters.Constant}">
+                </TextBox>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Content="{StaticResource DAQSystem.Common.Close}"
+                    Command="{Binding CloseCommand}">
+                </Button>
+                <Button
+                    Grid.Column="2"
+                    Content="{StaticResource DAQSystem.Application.Set}"
+                    Command="{Binding SetParametersCommand}">
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</commonUi:DialogBase>

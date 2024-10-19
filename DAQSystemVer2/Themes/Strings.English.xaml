@@ -12,10 +12,13 @@
     <system:String x:Key="DAQSystem.Common.Yes">Yes</system:String>
 
     <system:String x:Key="DAQSystem.Application.Amplitude">Amplitude</system:String>
+    <system:String x:Key="DAQSystem.Application.BiasCorrection">Bias Correction</system:String>
     <system:String x:Key="DAQSystem.Application.Calculate">Calculate</system:String>
     <system:String x:Key="DAQSystem.Application.ChangePath">Change Path</system:String>
     <system:String x:Key="DAQSystem.Application.ChannelToEnergy">Channel To Energy</system:String>
+    <system:String x:Key="DAQSystem.Application.Coefficient">Coefficient</system:String>
     <system:String x:Key="DAQSystem.Application.CollectDuration">Collect Duration</system:String>
+    <system:String x:Key="DAQSystem.Application.Constant">Constant</system:String>
     <system:String x:Key="DAQSystem.Application.CountChannel">Count Channel</system:String>
     <system:String x:Key="DAQSystem.Application.EnergyChannel">Energy Channel</system:String>
     <system:String x:Key="DAQSystem.Application.Error">Error</system:String>
@@ -28,6 +31,8 @@
     <system:String x:Key="DAQSystem.Application.MaximumAt">Maximum At</system:String>
     <system:String x:Key="DAQSystem.Application.MaximumCount">Maximum Count</system:String>
     <system:String x:Key="DAQSystem.Application.Mean">Mean</system:String>
+    <system:String x:Key="DAQSystem.Application.MergedBy">Merged By</system:String>
+    <system:String x:Key="DAQSystem.Application.MergedChannel">Merged Channel</system:String>
     <system:String x:Key="DAQSystem.Application.Negative">Negative</system:String>
     <system:String x:Key="DAQSystem.Application.Notice">Notice</system:String>
     <system:String x:Key="DAQSystem.Application.Parameter">Parameter</system:String>
@@ -43,6 +48,7 @@
     <system:String x:Key="DAQSystem.Application.StopSerialCommunication">Stop Serial Communication</system:String>
     <system:String x:Key="DAQSystem.Application.TimeInterval">Time Interval</system:String>
     <system:String x:Key="DAQSystem.Application.To">To</system:String>
+    <system:String x:Key="DAQSystem.Application.ToLn">ToLn</system:String>
     <system:String x:Key="DAQSystem.Application.UpdateToPlot">Update To Plot</system:String>
     <system:String x:Key="DAQSystem.Application.Value">Value</system:String>
     <system:String x:Key="DAQSystem.Application.WorkingDirectory">Working Directory:</system:String>

@@ -264,7 +264,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="DataGridEditingComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+    <Style x:Key="DAQSystem.DataGridEditingComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="IsSynchronizedWithCurrentItem" Value="False" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Padding" Value="1,1" />

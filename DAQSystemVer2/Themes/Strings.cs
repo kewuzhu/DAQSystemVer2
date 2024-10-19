@@ -11,10 +11,13 @@
         public const string Yes = "DAQSystem.Common.Yes";
 
         public const string Amplitude = "DAQSystem.Application.Amplitude";
+        public const string BiasCorrection = "DAQSystem.Application.BiasCorrection";
         public const string Calculate = "DAQSystem.Application.Calculate";
         public const string ChangePath = "DAQSystem.Application.ChangePath";
         public const string ChannelToEnergy = "DAQSystem.Application.ChannelToEnergy";
+        public const string Coefficient = "DAQSystem.Application.Coefficient";
         public const string CollectDuration = "DAQSystem.Application.CollectDuration";
+        public const string Constant = "DAQSystem.Application.Constant";
         public const string CountChannel = "DAQSystem.Application.CollectDuration";
         public const string EnergyChannel = "DAQSystem.Application.EnergyChannel";
         public const string Error = "DAQSystem.Application.Error";
@@ -27,6 +30,8 @@
         public const string MaximumAt = "DAQSystem.Application.MaximumCount";
         public const string MaximumCount = "DAQSystem.Application.MaximumCount";
         public const string Mean = "DAQSystem.Application.Mean";
+        public const string MergedBy = "DAQSystem.Application.MergedBy";
+        public const string MergedChannel = "DAQSystem.Application.MergedChannel";
         public const string Negative = "DAQSystem.Application.Negative";
         public const string Notice = "DAQSystem.Application.Notice";
         public const string Parameter = "DAQSystem.Application.Parameter";
@@ -42,6 +47,7 @@
         public const string StopSerialCommunication = "DAQSystem.Application.StopSerialCommunication";
         public const string TimeInterval = "DAQSystem.Application.TimeInterval";
         public const string To = "DAQSystem.Application.To";
+        public const string ToLn = "DAQSystem.Application.ToLn";
         public const string UpdateToPlot = "DAQSystem.Application.UpdateToPlot";
         public const string Value = "DAQSystem.Application.Value";
         public const string WorkingDirectory = "DAQSystem.Application.WorkingDirectory";
