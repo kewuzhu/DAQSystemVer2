@@ -314,7 +314,7 @@ namespace DAQSystem.Application.UI
             {
                 plotDataDictionary_[key].Clear();
             }
-            channelCountDictionary_.Clear();
+            channelCountDictionary_?.Clear();
         }
 
         public MainWindowViewModel(SerialConfiguration serialConfig, DAQConfiguration daqConfig)
