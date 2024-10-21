@@ -147,7 +147,7 @@ namespace DAQSystem.Application.UI.Dialog
 
             var initialGuess = Vector<double>.Build.DenseOfArray(new double[] { a, b, c });
 
-            var optimizer = new NelderMeadSimplex(1e-6, 2000);
+            var optimizer = new NelderMeadSimplex(1e-6, 8000);
             var result = optimizer.FindMinimum(ObjectiveFunction.Value(targetFunction), initialGuess);
 
             return result.MinimizingPoint.ToArray();
