@@ -488,7 +488,8 @@ namespace DAQSystem.Application.UI
                     lock (plotDataDictionary_[PlotTypes.BiasCorrection])
                     {
                         var pointX = point.X;
-                        var pointY = point.Y - (point.X * biasCorrectionParameters_.Coefficient + biasCorrectionParameters_.Constant);
+                        var corrected = point.Y - (point.X * biasCorrectionParameters_.Coefficient + biasCorrectionParameters_.Constant);
+                        var pointY = corrected < 0 ? 0 : corrected;
                         plotDataDictionary_[PlotTypes.BiasCorrection].Add(new ScatterPoint(pointX, pointY));
                     }
                 });
