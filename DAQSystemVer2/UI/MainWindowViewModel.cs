@@ -172,6 +172,7 @@ namespace DAQSystem.Application.UI
                 ResetAllData();
 
                 CurrentStatus = AppStatus.Collecting;
+                SelectedPlotType = PlotTypes.CountChannel;
 
                 foreach (var cmd in SettingCommands)
                 {

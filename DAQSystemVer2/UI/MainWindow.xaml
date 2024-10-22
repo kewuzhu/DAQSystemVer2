@@ -143,7 +143,7 @@
                         HorizontalAlignment="Center"
                         GroupName="PlotSwitch"
                         IsEnabled="{Binding CanSwitchPlot}"
-                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountChannel}}">
+                        IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.CountChannel}}">
                     </RadioButton>
                     <RadioButton
                         Grid.Column="2"
@@ -151,7 +151,7 @@
                         HorizontalAlignment="Center"
                         Content="{StaticResource DAQSystem.Application.EnergyChannel}"
                         IsEnabled="{Binding CanSwitchPlot}"
-                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.EnergyChannel}}">
+                        IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.EnergyChannel}}">
                     </RadioButton>
                     <RadioButton
                         Grid.Column="4"
@@ -159,7 +159,7 @@
                         HorizontalAlignment="Center"
                         Content="{StaticResource DAQSystem.Application.ToLn}"
                         IsEnabled="{Binding CanSwitchPlot}"
-                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.ToLn}}">
+                        IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.ToLn}}">
                     </RadioButton>
                     <Grid Grid.Column="6">
                         <Grid.ColumnDefinitions>
@@ -193,7 +193,7 @@
                         HorizontalAlignment="Center"
                         Content="{StaticResource DAQSystem.Application.MergedChannel}"
                         IsEnabled="{Binding CanSwitchPlot}"
-                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.MergedChannel}}">
+                        IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.MergedChannel}}">
                         <RadioButton.Style>
                             <Style BasedOn="{StaticResource DAQSystem.BaseRadioButtonStyle}" TargetType="RadioButton">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -211,7 +211,7 @@
                         HorizontalAlignment="Center"
                         Content="{StaticResource DAQSystem.Application.BiasCorrection}"
                         IsEnabled="{Binding CanSwitchPlot}"
-                        IsChecked="{Binding Path=CurrentPlotType, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.BiasCorrection}}">
+                        IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.BiasCorrection}}">
                     </RadioButton>
                 </Grid>
             </Grid>
