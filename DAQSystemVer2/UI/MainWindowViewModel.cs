@@ -439,7 +439,7 @@ namespace DAQSystem.Application.UI
                         }
                         else
                         {
-                            var pointToUpdate = plotData_.Points.OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
+                            var pointToUpdate = plotDataDictionary_[PlotTypes.CountChannel].OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
                             plotDataDictionary_[PlotTypes.CountChannel].Add(adcCountPair);
                         }
