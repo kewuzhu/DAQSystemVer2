@@ -411,33 +411,40 @@ namespace DAQSystem.Application.UI
         private async void OnFilteredDataReceived(object sender, List<int> data)
         {
             rawData_.AddRange(data);
-            await UpdatePlotOnDataReceived(data);
+            await UpdateCountChannelPointsOnDataReceived(data);
+            switch (CurrentPlotType) 
+            {
+                case PlotTypes.EnergyChannel:
+                    await UpdateEnergyChannelPoints();
+                    break;
+                case PlotTypes.BiasCorrection:
+                    await UpdateBiasCorrectionPoints();
+                    break;
+            }
+            await UpdatePlot();
         }
 
-        private async Task UpdatePlotOnDataReceived(List<int> data)
+        private async Task UpdateCountChannelPointsOnDataReceived(List<int> data)
         {
             await Task.Run(() =>
             {
-                lock (plotData_)
+                lock (plotDataDictionary_[PlotTypes.CountChannel])
                 {
                     foreach (int d in data)
                     {
-                        if (!plotData_.Points.Any(x => x.X == d))
+                        if (!plotDataDictionary_[PlotTypes.CountChannel].Any(x => x.X == d))
                         {
                             var adcCountPair = new ScatterPoint(d, 1);
-                            plotData_.Points.Add(adcCountPair);
                             plotDataDictionary_[PlotTypes.CountChannel].Add(adcCountPair);
                         }
                         else
                         {
                             var pointToUpdate = plotData_.Points.OrderByDescending(x => x.Y).FirstOrDefault(x => x.X == d);
                             var adcCountPair = new ScatterPoint(d, (pointToUpdate.Y + 1));
-                            plotData_.Points.Add(adcCountPair);
                             plotDataDictionary_[PlotTypes.CountChannel].Add(adcCountPair);
                         }
                         syncContextProxy_.ExecuteInSyncContext(() => { ProgressCounter++; });
                     }
-                    MainPlotModel.InvalidatePlot(true);
                 }
             });
         }
@@ -450,6 +457,14 @@ namespace DAQSystem.Application.UI
             if (plotDataDictionary_[PlotTypes.CountChannel].Count == 0)
                 return;
 
+            await UpdateEnergyChannelPoints();
+
+            if (CurrentPlotType == PlotTypes.EnergyChannel)
+                await UpdatePlot();
+        }
+
+        private async Task UpdateEnergyChannelPoints() 
+        {
             plotDataDictionary_[PlotTypes.EnergyChannel].Clear();
 
             foreach (var point in plotDataDictionary_[PlotTypes.CountChannel])
@@ -464,9 +479,6 @@ namespace DAQSystem.Application.UI
                     }
                 });
             }
-
-            if (CurrentPlotType == PlotTypes.EnergyChannel)
-                await UpdatePlot();
         }
 
         private async void OnBiasCorrectionParametersChanged(Object sender, LinearEquationParameters p)
@@ -477,6 +489,14 @@ namespace DAQSystem.Application.UI
             if (plotDataDictionary_[PlotTypes.CountChannel].Count == 0)
                 return;
 
+            await UpdateBiasCorrectionPoints();
+
+            if (CurrentPlotType == PlotTypes.BiasCorrection)
+                await UpdatePlot();
+        }
+
+        private async Task UpdateBiasCorrectionPoints() 
+        {
             plotDataDictionary_[PlotTypes.BiasCorrection].Clear();
 
             foreach (var point in plotDataDictionary_[PlotTypes.CountChannel])
@@ -492,9 +512,6 @@ namespace DAQSystem.Application.UI
                     }
                 });
             }
-
-            if (CurrentPlotType == PlotTypes.BiasCorrection)
-                await UpdatePlot();
         }
 
         protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
