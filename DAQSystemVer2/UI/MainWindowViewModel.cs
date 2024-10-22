@@ -49,9 +49,6 @@ namespace DAQSystem.Application.UI
         private CommandTypes selectedSetting;
 
         [ObservableProperty]
-        private PlotTypes selectedPlotType;
-
-        [ObservableProperty]
         private int selectedMergedParameter;
 
         [ObservableProperty]
@@ -172,7 +169,6 @@ namespace DAQSystem.Application.UI
                 ResetAllData();
 
                 CurrentStatus = AppStatus.Collecting;
-                SelectedPlotType = PlotTypes.CountChannel;
 
                 foreach (var cmd in SettingCommands)
                 {
@@ -306,6 +302,7 @@ namespace DAQSystem.Application.UI
 
         private void ResetAllData()
         {
+            CurrentPlotType = PlotTypes.CountChannel;
             CanSwitchPlot = false;
             rawData_.Clear();
             ProgressCounter = 0;
