@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\ControlBoard\DataAcquisition.csproj" />
+    <ProjectReference Include="..\DataAcquisition\DataAcquisition.csproj" />
   </ItemGroup>
 
 </Project>

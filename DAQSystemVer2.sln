@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAQSystemVer2", "DAQSystemV
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{0C2A40E4-6D0C-4B81-91CA-CF251811733E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition", "ControlBoard\DataAcquisition.csproj", "{790923D8-ED1F-4CB7-9D48-04F54E152824}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAcquisition", "DataAcquisition\DataAcquisition.csproj", "{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +33,14 @@ Global
 		{0C2A40E4-6D0C-4B81-91CA-CF251811733E}.Release|Any CPU.Build.0 = Release|x64
 		{0C2A40E4-6D0C-4B81-91CA-CF251811733E}.Release|x64.ActiveCfg = Release|x64
 		{0C2A40E4-6D0C-4B81-91CA-CF251811733E}.Release|x64.Build.0 = Release|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Debug|Any CPU.Build.0 = Debug|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Debug|x64.ActiveCfg = Debug|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Debug|x64.Build.0 = Debug|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Release|Any CPU.ActiveCfg = Release|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Release|Any CPU.Build.0 = Release|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Release|x64.ActiveCfg = Release|x64
-		{790923D8-ED1F-4CB7-9D48-04F54E152824}.Release|x64.Build.0 = Release|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Debug|Any CPU.Build.0 = Debug|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Debug|x64.ActiveCfg = Debug|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Debug|x64.Build.0 = Debug|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Release|Any CPU.ActiveCfg = Release|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Release|Any CPU.Build.0 = Release|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Release|x64.ActiveCfg = Release|x64
+		{2B11D8D7-E0AE-4B7C-B25C-832267CA0399}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
