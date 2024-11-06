@@ -16,6 +16,9 @@ namespace DAQSystem.Application.Themes
         public static readonly DependencyProperty IsActiveProperty =
             DependencyProperty.Register(nameof(IsActive), typeof(bool), typeof(ImageButton));
 
+        public static readonly DependencyProperty TextColorProperty =
+            DependencyProperty.Register(nameof(TextColor), typeof(System.Windows.Media.Brush), typeof(ImageButton));
+
         public object ImageSource
         {
             get => (string)GetValue(ImageSourceProperty);
@@ -38,6 +41,12 @@ namespace DAQSystem.Application.Themes
         {
             get => (bool)GetValue(IsActiveProperty);
             set => SetValue(IsActiveProperty, value);
+        }
+
+        public System.Windows.Media.Brush TextColor
+        {
+            get => (System.Windows.Media.Brush)GetValue(TextColorProperty);
+            set => SetValue(TextColorProperty, value);
         }
     }
 }

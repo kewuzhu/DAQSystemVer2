@@ -12,6 +12,9 @@
     <SolidColorBrush x:Key="DAQSystem.Green">#00FF00</SolidColorBrush>
     <SolidColorBrush x:Key="DAQSystem.LightGreen">#55FF55</SolidColorBrush>
     <SolidColorBrush x:Key="DAQSystem.DarkGreen">#009B00</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.Yellow">#FFFF33</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.LightYellow">#FFFF99</SolidColorBrush>
+    <SolidColorBrush x:Key="DAQSystem.DarkYellow">#CCCC00</SolidColorBrush>
 
     <SolidColorBrush x:Key="DAQSystem.ButtonBackground" Color="#333333" />
     <SolidColorBrush x:Key="DAQSystem.ButtonBackgroundHover" Color="#3e3e42" />

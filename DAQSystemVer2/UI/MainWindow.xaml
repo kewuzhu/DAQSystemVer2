@@ -51,9 +51,9 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
@@ -79,13 +79,14 @@
                     Text="{StaticResource DAQSystem.Application.WorkingDirectory}" />
                 <TextBox
                     Grid.Column="2"
+                    IsReadOnly="True"
                     Text="{Binding WorkingDirectory}" />
-                
                 <themes:ImageButton
-                           Command="{Binding SelectDirectoryCommand}"
-                           Content="{StaticResource DAQSystem.Application.ChangePath}" 
-                           ImageSource="{StaticResource DAQSystem.ChangePathIcon}"
-                           Style="{StaticResource DAQSystem.ImageButton}">
+                    Grid.Column="4"
+                    Command="{Binding SelectDirectoryCommand}"
+                    Content="{StaticResource DAQSystem.Application.ChangePath}" 
+                    ImageSource="{StaticResource DAQSystem.ChangePathIcon}"
+                    Style="{StaticResource DAQSystem.ImageButton}">
                 </themes:ImageButton>
             </Grid>
         </Grid>
@@ -232,22 +233,52 @@
                         <RowDefinition Height="5"/>
                         <RowDefinition Height="3*"/>
                     </Grid.RowDefinitions>
-                    <Button 
+                    <themes:ImageButton 
                         Grid.Row="0"
                         Command="{Binding ToggleConnectCommand}">
-                        <Button.Style>
-                            <Style BasedOn="{StaticResource DAQSystem.BaseButtonStyle}" TargetType="Button">
-                                <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}"/>
-                                <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
+                        <themes:ImageButton.Style>
+                            <Style BasedOn="{StaticResource DAQSystem.ImageButton}" TargetType="themes:ImageButton">
                                 <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
+                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
+                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
+                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
+                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
                                         <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartSerialCommunication}" />
                                         <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightGreen}"/>
+                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.ConnectIcon}" />
                                     </DataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Green}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Button.Style>
-                    </Button>
+                        </themes:ImageButton.Style>
+                    </themes:ImageButton>
                     <Grid Grid.Row="2">
                         <Grid.RowDefinitions>
                             <RowDefinition />
