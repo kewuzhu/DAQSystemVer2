@@ -7,6 +7,7 @@
         xmlns:ui="clr-namespace:DAQSystem.Application.UI"
         xmlns:model="clr-namespace:DAQSystem.Application.Model"
         xmlns:daq="clr-namespace:DAQSystem.DataAcquisition;assembly=DAQSystem.DataAcquisition"
+        xmlns:themes="clr-namespace:DAQSystem.Application.Themes"
         xmlns:converters="clr-namespace:DAQSystem.Application.Themes.Converters"
         d:DataContext="{d:DesignInstance Type=ui:MainWindowViewModel}"
         mc:Ignorable="d"
@@ -57,10 +58,12 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <Button
+                <themes:ImageButton
                     Command="{Binding ExportPlotToPdfCommand}"
-                    Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" >
-                </Button>
+                    Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" 
+                    ImageSource="{StaticResource DAQSystem.ExportPlotToPdfIcon}"
+                    Style="{StaticResource DAQSystem.ImageButton}">
+                </themes:ImageButton>
             </Grid>
             <Grid Grid.Column="2">
                 <Grid.ColumnDefinitions>
@@ -77,10 +80,13 @@
                 <TextBox
                     Grid.Column="2"
                     Text="{Binding WorkingDirectory}" />
-                <Button
-                    Grid.Column="4"
-                    Command="{Binding SelectDirectoryCommand}"
-                    Content="{StaticResource DAQSystem.Application.ChangePath}" />
+                
+                <themes:ImageButton
+                           Command="{Binding SelectDirectoryCommand}"
+                           Content="{StaticResource DAQSystem.Application.ChangePath}" 
+                           ImageSource="{StaticResource DAQSystem.ChangePathIcon}"
+                           Style="{StaticResource DAQSystem.ImageButton}">
+                </themes:ImageButton>
             </Grid>
         </Grid>
         <Grid Grid.Row="2">
@@ -399,18 +405,25 @@
                                 </ListView>
                             </Grid>
                         </Grid>
-                        <Button
+
+                        <themes:ImageButton
                             Grid.Row="2"
                             Grid.Column="0"
                             Content="{StaticResource DAQSystem.Application.StartToCollect}"
-                            Command="{Binding StartCollectingCommand}">
-                        </Button>
-                        <Button
+                            Command="{Binding StartCollectingCommand}"
+                            ImageSource="{StaticResource DAQSystem.StartToCollectIcon}"
+                            Style="{StaticResource DAQSystem.ImageButton}">
+                        </themes:ImageButton>
+
+                        <themes:ImageButton
                             Grid.Row="2" 
                             Grid.Column="2"
                             Content="{StaticResource DAQSystem.Application.StopAndReset}"
-                            Command="{Binding StopAndResetCommand}">
-                        </Button>
+                            Command="{Binding StopAndResetCommand}"
+                            ImageSource="{StaticResource DAQSystem.StopAndResetIcon}"
+                            Style="{StaticResource DAQSystem.ImageButton}">
+                        </themes:ImageButton>
+
                     </Grid>
                     <Grid Grid.Row="4">
                         <GroupBox Header="{StaticResource DAQSystem.Application.Functions}">
@@ -429,24 +442,34 @@
                                     <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Button
+
+                                <themes:ImageButton
                                     Grid.Row="0"
                                     Grid.Column="2"
                                     Content="{StaticResource DAQSystem.Application.FitGaussian}"
-                                    Command="{Binding OpenFitGaussianDialogCommand}">
-                                </Button>
-                                <Button
-                                    Grid.Row="2"
-                                    Grid.Column="2"
-                                    Content="{StaticResource DAQSystem.Application.ChannelToEnergy}"
-                                    Command="{Binding OpenChannelToEnergyDialogCommand}">
-                                </Button>
-                                <Button
+                                    Command="{Binding OpenFitGaussianDialogCommand}"
+                                    ImageSource="{StaticResource DAQSystem.FitGaussianIcon}"
+                                    Style="{StaticResource DAQSystem.ImageButton}">     
+                                </themes:ImageButton>
+
+                                <themes:ImageButton
+                                   Grid.Row="2"
+                                   Grid.Column="2"
+                                   Content="{StaticResource DAQSystem.Application.ChannelToEnergy}"
+                                   Command="{Binding OpenChannelToEnergyDialogCommand}"
+                                   ImageSource="{StaticResource DAQSystem.ChannelToEnergyIcon}"
+                                   Style="{StaticResource DAQSystem.ImageButton}">
+                                </themes:ImageButton>
+
+                                <themes:ImageButton
                                     Grid.Row="4"
                                     Grid.Column="2"
                                     Content="{StaticResource DAQSystem.Application.BiasCorrection}"
-                                    Command="{Binding OpenBiasCorrectionDialogCommand}">
-                                </Button>
+                                    Command="{Binding OpenBiasCorrectionDialogCommand}"
+                                    ImageSource="{StaticResource DAQSystem.BiasCorrectionIcon}"
+                                    Style="{StaticResource DAQSystem.ImageButton}">     
+                                </themes:ImageButton>
+
                             </Grid>
                         </GroupBox>
                     </Grid>

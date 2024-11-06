@@ -8,7 +8,7 @@
 
     <FontFamily x:Key="DAQSystem.FixedFontFamily">Consolas</FontFamily>
     <system:Double x:Key="DAQSystem.FixedFontSize">13.333</system:Double>
-
+    <system:Double x:Key="DAQSystem.LargeFontSize">14</system:Double>
     <system:Double x:Key="DAQSystem.SmallFontSize">11</system:Double>
 
     <system:Double x:Key="DAQSystem.SmallMarginSize">2.5</system:Double>
