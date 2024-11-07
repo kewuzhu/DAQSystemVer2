@@ -173,8 +173,8 @@ namespace DAQSystem.Application.UI
                 foreach (var cmd in SettingCommands)
                 {
                     SelectedSettingCommand = cmd;
-                    await Task.Delay(100);
                     await daqControl_.WriteCommand(cmd.CommandType, cmd.Value);
+                    await Task.Delay(100);
                 }
                 SelectedSettingCommand = null;
 
