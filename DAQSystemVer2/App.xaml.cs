@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using static DAQSystem.Application.ApplicationConstants;
 
 namespace DAQSystem.Application
 {
@@ -18,11 +19,6 @@ namespace DAQSystem.Application
     /// </summary>
     public partial class App : System.Windows.Application
     {
-        private static readonly string APP_CONFIG_FILE_PATH = "C://DAQSystem//appconfig.json";
-        private static readonly string LOG_DIRECTORY = "C://DAQSystem//SessionLogs";
-        private static readonly string APP_LOG_FILE_NAME = "application.log";
-        private static readonly string ROOT_DIRECTORY = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -33,12 +29,18 @@ namespace DAQSystem.Application
 
                 InitializeLogging();
 
-                var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(APP_CONFIG_FILE_PATH));
+                var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(Path.Combine(WORKING_DIRECTORY,APP_CONFIG_FILE_NAME)));
                 appConfig.WorkingDirectory = Path.Combine(ROOT_DIRECTORY, appConfig.WorkingDirectory);
 
                 LogUtils.InitializeExtendedLogging(appConfig.FileLoggerLogLevel, appLogTargetName_, appConfig.ConsoleLoggerLogLevel);
 
                 Theme.AddStringsDictionary(appConfig.Language);
+
+                var splashScreen = new UI.SplashScreen();
+                splashScreen.Show();
+
+                await Task.Delay(1800);
+                splashScreen.Hide();
 
                 mainWindowViewModel_ = new MainWindowViewModel(appConfig.SerialConfiguration, appConfig.DAQConfiguration);
                 MainWindow = new MainWindow { DataContext = mainWindowViewModel_ };
@@ -57,6 +59,7 @@ namespace DAQSystem.Application
             var appVersion = appAssemblyName.Version;
 
             logDirectory_ = Path.Combine(
+                WORKING_DIRECTORY,
                 LOG_DIRECTORY,
                 $"{appAssemblyName.Name}-{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}",
                 $"{DateTime.Now:yyMMddHHmm}");

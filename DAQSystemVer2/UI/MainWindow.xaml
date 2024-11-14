@@ -14,8 +14,9 @@
         Title="{StaticResource DAQSystem.Common.Title}"
         Foreground="{StaticResource DAQSystem.DefaultForegroundColor}"
         Background="{StaticResource DAQSystem.WindowBackground}"
+        WindowStartupLocation="CenterScreen"
         Height="550" 
-        Width="940">
+        Width="800">
 
     <Window.Resources>
         <Storyboard x:Key="FadeInAnimation" Completed="OnAnimationCompleted">
@@ -45,57 +46,454 @@
 
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="{StaticResource DAQSystem.LargeMarginGridLength}"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="5"/>
-            <RowDefinition />
+            <RowDefinition Height="{StaticResource DAQSystem.LargeMarginGridLength}"/>
+            <RowDefinition Height="11*"/>
+            <RowDefinition Height="{StaticResource DAQSystem.LargeMarginGridLength}"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <themes:ImageButton
-                    Command="{Binding ExportPlotToPdfCommand}"
-                    Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" 
-                    ImageSource="{StaticResource DAQSystem.ExportPlotToPdfIcon}"
-                    Style="{StaticResource DAQSystem.ImageButton}">
-                </themes:ImageButton>
+        <Grid Grid.Row="1">
+            <Grid>
+                <Canvas
+                    x:Name="TopMenuCanvas">
+                </Canvas>
             </Grid>
-            <Grid Grid.Column="2">
+            <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.LargeMarginGridLength}"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.LargeMarginGridLength}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.LargeMarginGridLength}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.LargeMarginGridLength}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.LargeMarginGridLength}"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="{StaticResource DAQSystem.DefaultMarginGridLength}"/>
                     <ColumnDefinition />
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock
-                    VerticalAlignment="Center"
-                    Grid.Column="0"
-                    Text="{StaticResource DAQSystem.Application.WorkingDirectory}" />
-                <TextBox
-                    Grid.Column="2"
-                    IsReadOnly="True"
-                    Text="{Binding WorkingDirectory}" />
                 <themes:ImageButton
-                    Grid.Column="4"
-                    Command="{Binding SelectDirectoryCommand}"
-                    Content="{StaticResource DAQSystem.Application.ChangePath}" 
-                    ImageSource="{StaticResource DAQSystem.ChangePathIcon}"
-                    Style="{StaticResource DAQSystem.ImageButton}">
+                    Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    Command="{Binding ToggleConnectCommand}">
+                    <themes:ImageButton.Style>
+                        <Style BasedOn="{StaticResource DAQSystem.ImageButton}" TargetType="themes:ImageButton">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
+                                    <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
+                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
+                                    <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
+                                    <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartSerialCommunication}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightGreen}"/>
+                                    <Setter Property="ImageSource" Value="{StaticResource DAQSystem.ConnectIcon}" />
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Green}" />
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Path=IsFocused}" Value="True" />
+                                        <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </themes:ImageButton.Style>
                 </themes:ImageButton>
+                <themes:ImageToggleButton
+                    Grid.Column="3"
+                    x:Name="ParameterPopupButton"
+                    HorizontalAlignment="Center"
+                    ImageSource="{StaticResource DAQSystem.ParameterIcon}"
+                    Style="{StaticResource DAQSystem.ImageToggleButton}"
+                    ImageHeight="30"
+                    ImageWidth="30">
+                    <StackPanel>
+                        <Popup
+                            IsOpen="{Binding IsChecked, ElementName=ParameterPopupButton}"
+                            AllowsTransparency="True"
+                            PopupAnimation="Slide"
+                            Placement="Bottom">
+                            <Border 
+                                BorderBrush="{StaticResource DAQSystem.Yellow}"
+                                BorderThickness="1" 
+                                CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
+                                Background="Black">
+                                <GroupBox
+                                    BorderThickness="0"
+                                    BorderBrush="Transparent">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="5"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox
+                                            Grid.Row="0" 
+                                            Grid.Column="0"
+                                            ItemsSource="{Binding DataAcquisitionSettings}"
+                                            SelectedItem="{Binding SelectedSetting, Mode=TwoWay}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={converters:CommandTypesToStringConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                        <Grid
+                                            Grid.Row="0"
+                                            Grid.Column="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid" >
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSettingFadePlaying}" Value="True">
+                                                            <DataTrigger.EnterActions>
+                                                                <BeginStoryboard x:Name="RefreshSetting" Storyboard="{StaticResource FadeInAnimation}"/>
+                                                            </DataTrigger.EnterActions>
+                                                            <DataTrigger.ExitActions>
+                                                                <RemoveStoryboard BeginStoryboardName="RefreshSetting" />
+                                                            </DataTrigger.ExitActions>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <TextBox
+                                                Grid.Column="0"
+                                                Grid.ColumnSpan="3">
+                                                <TextBox.Style>
+                                                    <Style BasedOn="{StaticResource DAQSystem.DataGridEditingTextStyle}" TargetType="TextBox" >
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                        <Setter Property="IsEnabled" Value="True" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetCollectDuration}">
+                                                                <Setter Property="Text" Value="{Binding SettingCommands[0].Value}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetInitialThreshold}">
+                                                                <Setter Property="Text" Value="{Binding SettingCommands[1].Value}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalBaseline}">
+                                                                <Setter Property="Text" Value="{Binding SettingCommands[3].Value}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetTimeInterval}">
+                                                                <Setter Property="Text" Value="{Binding SettingCommands[4].Value}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetGain}">
+                                                                <Setter Property="Text" Value="{Binding SettingCommands[5].Value}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                            <RadioButton
+                                                Grid.Column="0"
+                                                Content="{StaticResource DAQSystem.Application.Positive}"
+                                                GroupName="SignalSign"
+                                                IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, Mode=TwoWay}">
+                                                <RadioButton.Style>
+                                                    <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="IsEnabled" Value="True" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </RadioButton.Style>
+                                            </RadioButton>
+                                            <RadioButton
+                                                Grid.Column="2"
+                                                GroupName="SignalSign"
+                                                Content="{StaticResource DAQSystem.Application.Negative}"
+                                                IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, ConverterParameter=inverse, Mode=TwoWay}">
+                                                <RadioButton.Style>
+                                                    <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="IsEnabled" Value="True" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
+                                                                <Setter Property="IsEnabled" Value="False"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </RadioButton.Style>
+                                            </RadioButton>
+                                        </Grid>
+                                        <Grid
+                                            Grid.Row="2"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="3"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                            <ListView 
+                                                ItemsSource="{Binding SettingCommands}"
+                                                SelectedItem="{Binding SelectedSettingCommand, Mode=TwoWay}">
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridViewColumn
+                                                            DisplayMemberBinding="{Binding CommandType, Converter={converters:SettingParametersToString}}" 
+                                                            Header="{StaticResource DAQSystem.Application.Parameter}"/>
+                                                        <GridViewColumn
+                                                            DisplayMemberBinding="{Binding Value}"
+                                                            Header="{StaticResource DAQSystem.Application.Value}" />
+                                                    </GridView>
+                                                </ListView.View>
+                                            </ListView>
+                                        </Grid>
+                                    </Grid>
+                                </GroupBox>
+                            </Border>
+                        </Popup>
+                    </StackPanel>
+                </themes:ImageToggleButton>
+                <themes:ImageToggleButton
+                    Grid.Column="5"
+                    x:Name="CollectPopupButton"
+                    HorizontalAlignment="Center"
+                    ImageSource="{StaticResource DAQSystem.CollectIcon}"
+                    Style="{StaticResource DAQSystem.ImageToggleButton}"
+                    ImageHeight="30"
+                    ImageWidth="30">
+                    <StackPanel>
+                        <Popup
+                            IsOpen="{Binding IsChecked, ElementName=CollectPopupButton}"
+                            AllowsTransparency="True"
+                            PopupAnimation="Slide"
+                            Placement="Bottom">
+                            <Border 
+                                BorderBrush="{StaticResource DAQSystem.Yellow}"
+                                BorderThickness="1" 
+                                CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
+                                Background="Black">
+                                <GroupBox
+                                    BorderThickness="0"
+                                    BorderBrush="Transparent">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <themes:ImageButton
+                                            Grid.Row="1"
+                                            Grid.Column="2"
+                                            Content="{StaticResource DAQSystem.Application.StartToCollect}"
+                                            Command="{Binding StartCollectingCommand}"
+                                            ImageSource="{StaticResource DAQSystem.StartToCollectIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                        <themes:ImageButton
+                                            Grid.Row="3" 
+                                            Grid.Column="2"
+                                            Content="{StaticResource DAQSystem.Application.StopAndReset}"
+                                            Command="{Binding StopAndResetCommand}"
+                                            ImageSource="{StaticResource DAQSystem.StopAndResetIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                    </Grid>
+                                </GroupBox>
+                            </Border>
+                        </Popup>
+                    </StackPanel>
+                </themes:ImageToggleButton>
+                <themes:ImageToggleButton
+                    Grid.Column="7"
+                    x:Name="CalculatePopupButton"
+                    HorizontalAlignment="Center"
+                    ImageSource="{StaticResource DAQSystem.CalcualteIcon}"
+                    Style="{StaticResource DAQSystem.ImageToggleButton}"
+                    ImageHeight="30"
+                    ImageWidth="30">
+                    <StackPanel>
+                        <Popup
+                            IsOpen="{Binding IsChecked, ElementName=CalculatePopupButton}"
+                            AllowsTransparency="True"
+                            PopupAnimation="Slide"
+                            Placement="Bottom">
+                            <Border 
+                                BorderBrush="{StaticResource DAQSystem.Yellow}"
+                                BorderThickness="1" 
+                                CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
+                                Background="Black">
+                                <GroupBox
+                                    BorderThickness="0"
+                                    BorderBrush="Transparent">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <themes:ImageButton
+                                            Grid.Row="1"
+                                            Grid.Column="2"
+                                            Content="{StaticResource DAQSystem.Application.FitGaussian}"
+                                            Command="{Binding OpenFitGaussianDialogCommand}"
+                                            ImageSource="{StaticResource DAQSystem.FitGaussianIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                        <themes:ImageButton
+                                            Grid.Row="3"
+                                            Grid.Column="2"
+                                            Content="{StaticResource DAQSystem.Application.ChannelToEnergy}"
+                                            Command="{Binding OpenChannelToEnergyDialogCommand}"
+                                            ImageSource="{StaticResource DAQSystem.ChannelToEnergyIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                        <themes:ImageButton
+                                            Grid.Row="5"
+                                            Grid.Column="2"
+                                            Content="{StaticResource DAQSystem.Application.BiasCorrection}"
+                                            Command="{Binding OpenBiasCorrectionDialogCommand}"
+                                            ImageSource="{StaticResource DAQSystem.BiasCorrectionIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                    </Grid>
+                                </GroupBox>
+                            </Border>
+                        </Popup>
+                    </StackPanel>
+                </themes:ImageToggleButton>
+                <themes:ImageToggleButton
+                    Grid.Column="9"
+                    x:Name="DocumentPopupButton"
+                    HorizontalAlignment="Center"
+                    ImageSource="{StaticResource DAQSystem.DocumentIcon}"
+                    Style="{StaticResource DAQSystem.ImageToggleButton}"
+                    ImageHeight="30"
+                    ImageWidth="30">
+                    <StackPanel>
+                        <Popup
+                            IsOpen="{Binding IsChecked, ElementName=DocumentPopupButton}"
+                            AllowsTransparency="True"
+                            PopupAnimation="Slide"
+                            Placement="Bottom">
+                            <Border 
+                                BorderBrush="{StaticResource DAQSystem.Yellow}"
+                                BorderThickness="1" 
+                                CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
+                                Background="Black">
+                                <GroupBox
+                                    BorderThickness="0"
+                                    BorderBrush="Transparent">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <themes:ImageButton
+                                            Grid.Column="2"
+                                            Grid.Row="1"
+                                            x:Name="ExportPlotToPdfButton"
+                                            Command="{Binding ExportPlotToPdfCommand}"
+                                            Content="{StaticResource DAQSystem.Application.ExportPlotToPdf}" 
+                                            ImageSource="{StaticResource DAQSystem.ExportPlotToPdfIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Grid.Column="0"
+                                            Grid.Row="3"
+                                            Text="{StaticResource DAQSystem.Application.WorkingDirectory}" />
+                                        <TextBox
+                                            Grid.Column="2"
+                                            Grid.Row="3"
+                                            IsReadOnly="True"
+                                            Width="{Binding Width, ElementName=ExportPlotToPdfButton}"
+                                            Text="{Binding WorkingDirectory}" />
+                                        <themes:ImageButton
+                                            Grid.Column="2"
+                                            Grid.Row="5"
+                                            Command="{Binding SelectDirectoryCommand}"
+                                            Content="{StaticResource DAQSystem.Application.ChangePath}" 
+                                            ImageSource="{StaticResource DAQSystem.ChangePathIcon}"
+                                            Style="{StaticResource DAQSystem.ImageButton}">
+                                        </themes:ImageButton>
+                                    </Grid>
+                                </GroupBox>
+                            </Border>
+                        </Popup>
+                    </StackPanel>
+                </themes:ImageToggleButton>
             </Grid>
         </Grid>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid Grid.Row="3">
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -220,290 +618,6 @@
                         IsEnabled="{Binding CanSwitchPlot}"
                         IsChecked="{Binding Path=CurrentPlotType, Mode=TwoWay, Converter={converters:PlotTypeToBooleanConverter}, ConverterParameter={x:Static model:PlotTypes.BiasCorrection}}">
                     </RadioButton>
-                </Grid>
-            </Grid>
-            <Grid
-                x:Name="ControlGrid"
-                Grid.Column="2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="5"/>
-                        <RowDefinition Height="7*"/>
-                        <RowDefinition Height="5"/>
-                        <RowDefinition Height="3*"/>
-                    </Grid.RowDefinitions>
-                    <themes:ImageButton 
-                        Grid.Row="0"
-                        Command="{Binding ToggleConnectCommand}">
-                        <themes:ImageButton.Style>
-                            <Style BasedOn="{StaticResource DAQSystem.ImageButton}" TargetType="themes:ImageButton">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
-                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}">
-                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StopSerialCommunication}" />
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightRed}"/>
-                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.DisconnectIcon}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}">
-                                        <Setter Property="Content" Value="{StaticResource DAQSystem.Application.StartSerialCommunication}" />
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.LightGreen}"/>
-                                        <Setter Property="ImageSource" Value="{StaticResource DAQSystem.ConnectIcon}" />
-                                    </DataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
-                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Idle}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Green}" />
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
-                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Connected}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding Path=IsFocused}" Value="True" />
-                                            <Condition Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter Property="BorderBrush" Value="{StaticResource DAQSystem.Red}" />
-                                    </MultiDataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </themes:ImageButton.Style>
-                    </themes:ImageButton>
-                    <Grid Grid.Row="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="5"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="5"/>
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid
-                            Grid.Row="0" 
-                            Grid.Column="0"
-                            Grid.ColumnSpan="3">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="5"/>
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <ComboBox
-                                Grid.Row="0" 
-                                Grid.Column="0"
-                                ItemsSource="{Binding DataAcquisitionSettings}"
-                                SelectedItem="{Binding SelectedSetting, Mode=TwoWay}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={converters:CommandTypesToStringConverter}}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Grid
-                                Grid.Row="0"
-                                Grid.Column="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="5"/>
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid.Style>
-                                    <Style TargetType="Grid" >
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSettingFadePlaying}" Value="True">
-                                                <DataTrigger.EnterActions>
-                                                    <BeginStoryboard x:Name="RefreshSetting" Storyboard="{StaticResource FadeInAnimation}"/>
-                                                </DataTrigger.EnterActions>
-                                                <DataTrigger.ExitActions>
-                                                    <RemoveStoryboard BeginStoryboardName="RefreshSetting" />
-                                                </DataTrigger.ExitActions>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Grid.Style>
-                                <TextBox
-                                    Grid.Column="0"
-                                    Grid.ColumnSpan="3">
-                                    <TextBox.Style>
-                                        <Style BasedOn="{StaticResource DAQSystem.DataGridEditingTextStyle}" TargetType="TextBox" >
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Setter Property="IsEnabled" Value="True" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetCollectDuration}">
-                                                    <Setter Property="Text" Value="{Binding SettingCommands[0].Value}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetInitialThreshold}">
-                                                    <Setter Property="Text" Value="{Binding SettingCommands[1].Value}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalBaseline}">
-                                                    <Setter Property="Text" Value="{Binding SettingCommands[3].Value}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetTimeInterval}">
-                                                    <Setter Property="Text" Value="{Binding SettingCommands[4].Value}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetGain}">
-                                                    <Setter Property="Text" Value="{Binding SettingCommands[5].Value}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBox.Style>
-                                </TextBox>
-                                <RadioButton
-                                    Grid.Column="0"
-                                    Content="{StaticResource DAQSystem.Application.Positive}"
-                                    GroupName="SignalSign"
-                                    IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, Mode=TwoWay}">
-                                    <RadioButton.Style>
-                                        <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Setter Property="IsEnabled" Value="False" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Setter Property="IsEnabled" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </RadioButton.Style>
-                                </RadioButton>
-                                <RadioButton
-                                    Grid.Column="2"
-                                    GroupName="SignalSign"
-                                    Content="{StaticResource DAQSystem.Application.Negative}"
-                                    IsChecked="{Binding SettingCommands[2].Value, Converter={converters:IntToBooleanConverter}, ConverterParameter=inverse, Mode=TwoWay}">
-                                    <RadioButton.Style>
-                                        <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton" >
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Setter Property="IsEnabled" Value="False" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedSetting}" Value="{x:Static daq:CommandTypes.SetSignalSign}">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Setter Property="IsEnabled" Value="True" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CurrentStatus}" Value="{x:Static model:AppStatus.Collecting}">
-                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </RadioButton.Style>
-                                </RadioButton>
-                            </Grid>
-                            <Grid
-                                Grid.Row="2"
-                                Grid.Column="0"
-                                Grid.ColumnSpan="3"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                                <ListView 
-                                    ItemsSource="{Binding SettingCommands}"
-                                    SelectedItem="{Binding SelectedSettingCommand, Mode=TwoWay}">
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn
-                                                DisplayMemberBinding="{Binding CommandType, Converter={converters:SettingParametersToString}}" 
-                                                Header="{StaticResource DAQSystem.Application.Parameter}"/>
-                                            <GridViewColumn
-                                                DisplayMemberBinding="{Binding Value}"
-                                                Header="{StaticResource DAQSystem.Application.Value}" />
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </Grid>
-                        </Grid>
-
-                        <themes:ImageButton
-                            Grid.Row="2"
-                            Grid.Column="0"
-                            Content="{StaticResource DAQSystem.Application.StartToCollect}"
-                            Command="{Binding StartCollectingCommand}"
-                            ImageSource="{StaticResource DAQSystem.StartToCollectIcon}"
-                            Style="{StaticResource DAQSystem.ImageButton}">
-                        </themes:ImageButton>
-
-                        <themes:ImageButton
-                            Grid.Row="2" 
-                            Grid.Column="2"
-                            Content="{StaticResource DAQSystem.Application.StopAndReset}"
-                            Command="{Binding StopAndResetCommand}"
-                            ImageSource="{StaticResource DAQSystem.StopAndResetIcon}"
-                            Style="{StaticResource DAQSystem.ImageButton}">
-                        </themes:ImageButton>
-
-                    </Grid>
-                    <Grid Grid.Row="4">
-                        <GroupBox Header="{StaticResource DAQSystem.Application.Functions}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
-                                    <RowDefinition />
-                                    <RowDefinition Height="{StaticResource DAQSystem.MediumMarginGridLength}"/>
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="{StaticResource DAQSystem.MediumMarginGridLength}"/>
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-
-                                <themes:ImageButton
-                                    Grid.Row="0"
-                                    Grid.Column="2"
-                                    Content="{StaticResource DAQSystem.Application.FitGaussian}"
-                                    Command="{Binding OpenFitGaussianDialogCommand}"
-                                    ImageSource="{StaticResource DAQSystem.FitGaussianIcon}"
-                                    Style="{StaticResource DAQSystem.ImageButton}">     
-                                </themes:ImageButton>
-
-                                <themes:ImageButton
-                                   Grid.Row="2"
-                                   Grid.Column="2"
-                                   Content="{StaticResource DAQSystem.Application.ChannelToEnergy}"
-                                   Command="{Binding OpenChannelToEnergyDialogCommand}"
-                                   ImageSource="{StaticResource DAQSystem.ChannelToEnergyIcon}"
-                                   Style="{StaticResource DAQSystem.ImageButton}">
-                                </themes:ImageButton>
-
-                                <themes:ImageButton
-                                    Grid.Row="4"
-                                    Grid.Column="2"
-                                    Content="{StaticResource DAQSystem.Application.BiasCorrection}"
-                                    Command="{Binding OpenBiasCorrectionDialogCommand}"
-                                    ImageSource="{StaticResource DAQSystem.BiasCorrectionIcon}"
-                                    Style="{StaticResource DAQSystem.ImageButton}">     
-                                </themes:ImageButton>
-
-                            </Grid>
-                        </GroupBox>
-                    </Grid>
                 </Grid>
             </Grid>
         </Grid>

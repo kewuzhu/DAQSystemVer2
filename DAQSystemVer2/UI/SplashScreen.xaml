@@ -1,0 +1,51 @@
+﻿<Window x:Class="DAQSystem.Application.UI.SplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Name="RaydosSplashScreen"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        Height="450"
+        Width="800"
+        WindowStyle="None">
+
+    <Window.Resources>
+        <Storyboard
+            x:Key="FadeInAnimation"
+            AutoReverse="True">
+            <DoubleAnimation
+                Storyboard.TargetProperty="Opacity"
+                From="0"
+                By=".75"
+                To="1"
+                Duration="0:0:.85" />
+        </Storyboard>
+    </Window.Resources>
+    <Grid>
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsActive, ElementName=RaydosSplashScreen}" Value="True">
+                        <DataTrigger.EnterActions>
+                            <BeginStoryboard x:Name="ShowSplashScreen" Storyboard="{StaticResource FadeInAnimation}"/>
+                        </DataTrigger.EnterActions>
+                        <DataTrigger.ExitActions>
+                            <RemoveStoryboard BeginStoryboardName="ShowSplashScreen" />
+                        </DataTrigger.ExitActions>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+        <TextBlock
+            HorizontalAlignment="Center"
+            Text="Raydos Medical"
+            FontFamily="{StaticResource DAQSystem.DefaultFontFamily}"
+            FontWeight="ExtraBold"
+            FontStyle="Oblique"
+            FontSize="34">
+        </TextBlock>
+    </Grid>
+</Window>

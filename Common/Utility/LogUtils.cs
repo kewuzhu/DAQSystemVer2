@@ -99,5 +99,52 @@ namespace DAQSystem.Common.Utility
 
             config.LoggingRules.Add(rule);
         }
+
+        public static void ScanAndClearAppConfigFilesInAllDrivers(string specifiedDirectory, bool ScanAll = false)
+        {
+            var drivers = DriveInfo.GetDrives();
+
+            foreach (DriveInfo drive in drivers)
+            {
+                if (drive.DriveType == DriveType.Fixed)
+                {
+                    Console.WriteLine($"Scanning disk: {drive.Name}");
+                    ScanAndClearAppConfigFiles(ScanAll ? drive.Name : specifiedDirectory);
+                }
+            }
+        }
+
+        private static void ScanAndClearAppConfigFiles(string directory)
+        {
+            try
+            {
+                string[] files = Directory.GetFiles(directory, "appconfig.json", SearchOption.AllDirectories);
+
+                foreach (string file in files)
+                {
+                    try
+                    {
+                        File.WriteAllText(file, string.Empty);
+                        Console.WriteLine($"File is cleared: {file}");
+                    }
+                    catch (IOException ex)
+                    {
+                        Console.WriteLine($"Error occurs while clearing {file}: {ex.Message}");
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Error occurs while getting access to {directory}: {ex.Message}");
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Console.WriteLine($"Directory {directory} not found: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error occurs while scanning {directory} : {ex.Message}");
+            }
+        }
     }
 }

@@ -1,6 +1,206 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style TargetType="Line">
+        <Setter Property="Stroke" Value="{StaticResource DAQSystem.LightYellow}"/>
+        <Setter Property="StrokeThickness" Value="0"/>
+    </Style>
+    
+    <Style TargetType="Ellipse">
+        <Setter Property="Stroke" Value="{StaticResource DAQSystem.Accent}"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Fill" Value="White"/>
+        <Setter Property="Width" Value="2"/>
+        <Setter Property="Height" Value="2"/>
+    </Style>
+
+    <ControlTemplate x:Key="DAQSystem.ParameterIcon">
+        <Viewbox>
+            <Canvas UseLayoutRounding="False" Width="32.0" Height="32.0">
+                <Canvas.Clip>
+                    <RectangleGeometry Rect="0.0,0.0,32.0,32.0"/>
+                </Canvas.Clip>
+                <Canvas UseLayoutRounding="False">
+                    <Path Fill="#ff2eb39a">
+                        <Path.Data>
+                            <PathGeometry Figures="M 29 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 3 c 0 -1.657 1.343 -3 3 -3 h 26 c 1.657 0 3 1.343 3 3 v 26 C 32 30.657 30.657 32 29 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ff65c3ab">
+                        <Path.Data>
+                            <PathGeometry Figures="M 27 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 3 c 0 -1.657 1.343 -3 3 -3 h 24 c 1.657 0 3 1.343 3 3 v 26 C 30 30.657 28.657 32 27 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffc9c6c0">
+                        <Path.Data>
+                            <PathGeometry Figures="M 2 10 h 8 v 13 H 2 V 10 z M 11 23 h 8 V 10 h -8 V 23 z M 20 23 h 8 V 10 h -8 V 23 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffedeae5">
+                        <Path.Data>
+                            <PathGeometry Figures="M 9 23 H 2 V 10 h 7 V 23 z M 18 10 h -7 v 13 h 7 V 10 z M 27 10 h -7 v 13 h 7 V 10 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffa5a29c">
+                        <Path.Data>
+                            <PathGeometry Figures="M 20 10 V 5 c 0 -0.552 0.448 -1 1 -1 h 6 c 0.552 0 1 0.448 1 1 v 5 H 20 z M 20 23 v 4 c 0 0.552 0.448 1 1 1 h 6 c 0.552 0 1 -0.448 1 -1 v -4 H 20 z M 19 10 V 5 c 0 -0.552 -0.448 -1 -1 -1 h -6 c -0.552 0 -1 0.448 -1 1 v 5 H 19 z M 11 23 v 4 c 0 0.552 0.448 1 1 1 h 6 c 0.552 0 1 -0.448 1 -1 v -4 H 11 z M 10 10 V 5 c 0 -0.552 -0.448 -1 -1 -1 H 3 C 2.448 4 2 4.448 2 5 v 5 H 10 z M 2 23 v 4 c 0 0.552 0.448 1 1 1 h 6 c 0.552 0 1 -0.448 1 -1 v -4 H 2 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffc9c6c0">
+                        <Path.Data>
+                            <PathGeometry Figures="M 20 10 V 5 c 0 -0.552 0.448 -1 1 -1 h 5 c 0.552 0 1 0.448 1 1 v 5 H 20 z M 20 23 v 4 c 0 0.552 0.448 1 1 1 h 5 c 0.552 0 1 -0.448 1 -1 v -4 H 20 z M 18 10 V 5 c 0 -0.552 -0.448 -1 -1 -1 h -5 c -0.552 0 -1 0.448 -1 1 v 5 H 18 z M 11 23 v 4 c 0 0.552 0.448 1 1 1 h 5 c 0.552 0 1 -0.448 1 -1 v -4 H 11 z M 9 10 V 5 c 0 -0.552 -0.448 -1 -1 -1 H 3 C 2.448 4 2 4.448 2 5 v 5 H 9 z M 2 23 v 4 c 0 0.552 0.448 1 1 1 h 5 c 0.552 0 1 -0.448 1 -1 v -4 H 2 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ff67625d">
+                        <Path.Data>
+                            <PathGeometry Figures="M 6.5 21 h -2 C 4.224 21 4 20.776 4 20.5 v -2.586 c 0 -0.4 0.156 -0.777 0.439 -1.061 l 1.414 -1.414 C 5.947 15.346 6 15.217 6 15.086 V 13.5 C 6 13.224 5.776 13 5.5 13 S 5 13.224 5 13.5 v 1 C 5 14.776 4.776 15 4.5 15 S 4 14.776 4 14.5 v -1 C 4 12.673 4.673 12 5.5 12 S 7 12.673 7 13.5 v 1.586 c 0 0.4 -0.156 0.777 -0.439 1.061 l -1.414 1.414 C 5.053 17.654 5 17.783 5 17.914 V 20 h 1.5 C 6.776 20 7 20.224 7 20.5 S 6.776 21 6.5 21 z M 16 19.5 v -2 c 0 -0.384 -0.145 -0.734 -0.383 -1 c 0.238 -0.266 0.383 -0.616 0.383 -1 v -2 c 0 -0.827 -0.673 -1.5 -1.5 -1.5 S 13 12.673 13 13.5 v 1 c 0 0.276 0.224 0.5 0.5 0.5 s 0.5 -0.224 0.5 -0.5 v -1 c 0 -0.276 0.224 -0.5 0.5 -0.5 s 0.5 0.224 0.5 0.5 v 2 c 0 0.276 -0.224 0.5 -0.5 0.5 H 14 c -0.276 0 -0.5 0.224 -0.5 0.5 S 13.724 17 14 17 h 0.5 c 0.276 0 0.5 0.224 0.5 0.5 v 2 c 0 0.276 -0.224 0.5 -0.5 0.5 S 14 19.776 14 19.5 v -1 c 0 -0.276 -0.224 -0.5 -0.5 -0.5 S 13 18.224 13 18.5 v 1 c 0 0.827 0.673 1.5 1.5 1.5 S 16 20.327 16 19.5 z M 25 19.5 v -2 c 0 -0.827 -0.673 -1.5 -1.5 -1.5 H 23 v -3 h 1.5 c 0.276 0 0.5 -0.224 0.5 -0.5 S 24.776 12 24.5 12 h -2 c -0.276 0 -0.5 0.224 -0.5 0.5 v 4 c 0 0.276 0.224 0.5 0.5 0.5 h 1 c 0.276 0 0.5 0.224 0.5 0.5 v 2 c 0 0.276 -0.224 0.5 -0.5 0.5 S 23 19.776 23 19.5 v -1 c 0 -0.276 -0.224 -0.5 -0.5 -0.5 S 22 18.224 22 18.5 v 1 c 0 0.827 0.673 1.5 1.5 1.5 S 25 20.327 25 19.5 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffa5a29c">
+                        <Path.Data>
+                            <PathGeometry Figures="M 7 25.5 v 2 c 0 0.176 -0.038 0.343 -0.094 0.5 H 5.5 C 5.776 28 6 27.776 6 27.5 v -2 C 6 25.224 5.776 25 5.5 25 S 5 25.224 5 25.5 v 1 C 5 26.776 4.776 27 4.5 27 S 4 26.776 4 26.5 v -1 C 4 24.673 4.673 24 5.5 24 S 7 24.673 7 25.5 z M 5 4 v 4.5 C 5 8.776 5.224 9 5.5 9 S 6 8.776 6 8.5 V 4 H 5 z M 14.146 5.561 l 1.414 -1.414 C 15.606 4.101 15.642 4.05 15.681 4 h -1.388 l -0.854 0.854 C 13.156 5.137 13 5.514 13 5.914 V 8.5 C 13 8.776 13.224 9 13.5 9 h 2 C 15.776 9 16 8.776 16 8.5 S 15.776 8 15.5 8 H 14 V 5.914 C 14 5.783 14.053 5.654 14.146 5.561 z M 22.059 4 l -0.055 0.438 c -0.018 0.142 0.026 0.285 0.121 0.393 C 22.22 4.938 22.356 5 22.5 5 H 24 v 3.5 C 24 8.776 24.224 9 24.5 9 S 25 8.776 25 8.5 V 4 H 22.059 z M 23.5 24 c -0.827 0 -1.5 0.673 -1.5 1.5 V 28 h 1 v -2.5 c 0 -0.276 0.224 -0.5 0.5 -0.5 s 0.5 0.224 0.5 0.5 v 1 c 0 0.276 0.224 0.5 0.5 0.5 s 0.5 -0.224 0.5 -0.5 v -1 C 25 24.673 24.327 24 23.5 24 z M 15.5 24 c -0.276 0 -0.5 0.224 -0.5 0.5 V 28 h 1 v -3.5 C 16 24.224 15.776 24 15.5 24 z M 14.062 24.004 c -0.277 -0.032 -0.524 0.16 -0.558 0.434 L 13.059 28 h 1.008 l 0.43 -3.438 C 14.53 24.288 14.336 24.038 14.062 24.004 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="DAQSystem.CollectIcon">
+        <Viewbox>
+            <Canvas UseLayoutRounding="False" Width="32.0" Height="32.0">
+                <Canvas.Clip>
+                    <RectangleGeometry Rect="0.0,0.0,32.0,32.0"/>
+                </Canvas.Clip>
+                <Canvas UseLayoutRounding="False">
+                    <Path Fill="#fff9e0bd">
+                        <Path.Data>
+                            <PathGeometry Figures="M 29 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 3 c 0 -1.657 1.343 -3 3 -3 h 26 c 1.657 0 3 1.343 3 3 v 26 C 32 30.657 30.657 32 29 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fffff2df">
+                        <Path.Data>
+                            <PathGeometry Figures="M 27 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 3 c 0 -1.657 1.343 -3 3 -3 h 24 c 1.657 0 3 1.343 3 3 v 26 C 30 30.657 28.657 32 27 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fff2c7b5">
+                        <Path.Data>
+                            <PathGeometry Figures="M 16 29 h -2 c -0.552 0 -1 -0.448 -1 -1 V 18 c 0 -0.552 0.448 -1 1 -1 h 2 c 0.552 0 1 0.448 1 1 v 10 C 17 28.552 16.552 29 16 29 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffd97360">
+                        <Path.Data>
+                            <PathGeometry Figures="M 11 29 H 9 c -0.552 0 -1 -0.448 -1 -1 V 7 c 0 -0.552 0.448 -1 1 -1 h 2 c 0.552 0 1 0.448 1 1 v 21 C 12 28.552 11.552 29 11 29 z M 22 28 V 4 c 0 -0.552 -0.448 -1 -1 -1 h -2 c -0.552 0 -1 0.448 -1 1 v 24 c 0 0.552 0.448 1 1 1 h 2 C 21.552 29 22 28.552 22 28 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffe69d8a">
+                        <Path.Data>
+                            <PathGeometry Figures="M 6 29 H 4 c -0.552 0 -1 -0.448 -1 -1 V 13 c 0 -0.552 0.448 -1 1 -1 h 2 c 0.552 0 1 0.448 1 1 v 15 C 7 28.552 6.552 29 6 29 z M 27 28 V 10 c 0 -0.552 -0.448 -1 -1 -1 h -2 c -0.552 0 -1 0.448 -1 1 v 18 c 0 0.552 0.448 1 1 1 h 2 C 26.552 29 27 28.552 27 28 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="DAQSystem.CalcualteIcon">
+        <Viewbox>
+            <Canvas UseLayoutRounding="False" Width="32.0" Height="32.0">
+                <Canvas.Clip>
+                    <RectangleGeometry Rect="0.0,0.0,32.0,32.0"/>
+                </Canvas.Clip>
+                <Canvas UseLayoutRounding="False">
+                    <Path Fill="#ffedb57e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 32 13 H 0 V 3 c 0 -1.657 1.343 -3 3 -3 h 26 c 1.657 0 3 1.343 3 3 V 13 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fff2c99e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 30 13 H 0 V 3 c 0 -1.657 1.343 -3 3 -3 h 24 c 1.657 0 3 1.343 3 3 V 13 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fff2c99e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 29 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 13 h 32 v 16 C 32 30.657 30.657 32 29 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fff9e0bd">
+                        <Path.Data>
+                            <PathGeometry Figures="M 27 32 H 3 c -1.657 0 -3 -1.343 -3 -3 V 13 h 30 v 16 C 30 30.657 28.657 32 27 32 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffedb57e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 9 21 H 5 c -0.552 0 -1 -0.448 -1 -1 v -3 c 0 -0.552 0.448 -1 1 -1 h 4 c 0.552 0 1 0.448 1 1 v 3 C 10 20.552 9.552 21 9 21 z M 18 20 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -4 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 4 C 17.552 21 18 20.552 18 20 z M 26 20 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -4 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 4 C 25.552 21 26 20.552 26 20 z M 10 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 H 5 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 4 C 9.552 28 10 27.552 10 27 z M 18 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -4 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 4 C 17.552 28 18 27.552 18 27 z M 26 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -4 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 4 C 25.552 28 26 27.552 26 27 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#fff2c99e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 8 21 H 5 c -0.552 0 -1 -0.448 -1 -1 v -3 c 0 -0.552 0.448 -1 1 -1 h 3 c 0.552 0 1 0.448 1 1 v 3 C 9 20.552 8.552 21 8 21 z M 17 20 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -3 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 3 C 16.552 21 17 20.552 17 20 z M 25 20 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -3 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 3 C 24.552 21 25 20.552 25 20 z M 9 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 H 5 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 3 C 8.552 28 9 27.552 9 27 z M 17 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -3 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 3 C 16.552 28 17 27.552 17 27 z M 25 27 v -3 c 0 -0.552 -0.448 -1 -1 -1 h -3 c -0.552 0 -1 0.448 -1 1 v 3 c 0 0.552 0.448 1 1 1 h 3 C 24.552 28 25 27.552 25 27 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ff65c3ab">
+                        <Path.Data>
+                            <PathGeometry Figures="M 25 10 H 5 c -0.552 0 -1 -0.448 -1 -1 V 5 c 0 -0.552 0.448 -1 1 -1 h 20 c 0.552 0 1 0.448 1 1 v 4 C 26 9.552 25.552 10 25 10 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffedb57e">
+                        <Path.Data>
+                            <PathGeometry Figures="M 5 9 V 5 c 0 -0.552 0.448 -1 1 -1 H 5 C 4.448 4 4 4.448 4 5 v 4 c 0 0.552 0.448 1 1 1 h 1 C 5.448 10 5 9.552 5 9 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="DAQSystem.DocumentIcon">
+        <Viewbox>
+            <Canvas UseLayoutRounding="False" Width="32.0" Height="32.0">
+                <Canvas.Clip>
+                    <RectangleGeometry Rect="0.0,0.0,32.0,32.0"/>
+                </Canvas.Clip>
+                <Canvas UseLayoutRounding="False">
+                    <Path Fill="#ffa4c83f">
+                        <Path.Data>
+                            <PathGeometry Figures="M 29 0 H 3 C 1.343 0 0 1.343 0 3 v 26 c 0 1.657 1.343 3 3 3 h 26 c 1.657 0 3 -1.343 3 -3 V 3 C 32 1.343 30.657 0 29 0 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffbcd269">
+                        <Path.Data>
+                            <PathGeometry Figures="M 27 0 H 3 C 1.343 0 0 1.343 0 3 v 26 c 0 1.657 1.343 3 3 3 h 24 c 1.657 0 3 -1.343 3 -3 V 3 C 30 1.343 28.657 0 27 0 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffa4c83f">
+                        <Path.Data>
+                            <PathGeometry Figures="M 14.229 13.681 l -3.91 -3.91 c -0.426 -0.426 -0.426 -1.116 0 -1.542 l 3.91 -3.91 c 0.426 -0.426 1.116 -0.426 1.542 0 l 3.91 3.91 c 0.426 0.426 0.426 1.116 0 1.542 l -3.91 3.91 C 15.345 14.106 14.655 14.106 14.229 13.681 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffd1de8b">
+                        <Path.Data>
+                            <PathGeometry Figures="M 3 18 h 24 c 0.552 0 1 0.448 1 1 v 10 c 0 0.552 -0.448 1 -1 1 H 3 c -0.552 0 -1 -0.448 -1 -1 V 19 C 2 18.448 2.448 18 3 18 z M 14 10.5 v -3 C 14 7.224 13.776 7 13.5 7 S 13 7.224 13 7.5 v 3 c 0 0.276 0.224 0.5 0.5 0.5 S 14 10.776 14 10.5 z M 16.5 11 c -0.276 0 -0.5 -0.224 -0.5 -0.5 v -3 C 16 7.224 16.224 7 16.5 7 S 17 7.224 17 7.5 v 3 C 17 10.776 16.776 11 16.5 11 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffe8e8b5">
+                        <Path.Data>
+                            <PathGeometry Figures="M 2 19 v 10 c 0 0.552 0.448 1 1 1 h 23 c 0.552 0 1 -0.448 1 -1 V 19 c 0 -0.552 -0.448 -1 -1 -1 H 3 C 2.448 18 2 18.448 2 19 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                    <Path Fill="#ffbcd269">
+                        <Path.Data>
+                            <PathGeometry Figures="M 25 20.5 c 0 -0.276 -0.224 -0.5 -0.5 -0.5 h -20 C 4.224 20 4 20.224 4 20.5 S 4.224 21 4.5 21 h 19 L 23 23 c 0 0.552 0.448 1 1 1 s 1 -0.448 1 -1 l -0.5 -2 C 24.776 21 25 20.776 25 20.5 z" FillRule="Nonzero"/>
+                        </Path.Data>
+                    </Path>
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="DAQSystem.ChangePathIcon">
         <Viewbox>
             <Canvas UseLayoutRounding="False" Width="1024.0" Height="1024.0">
@@ -15,7 +215,6 @@
             </Canvas>
         </Viewbox>
     </ControlTemplate>
-
 
     <ControlTemplate x:Key="DAQSystem.ExportPlotToPdfIcon">
         <Viewbox>

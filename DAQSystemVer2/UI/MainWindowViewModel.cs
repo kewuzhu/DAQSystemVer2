@@ -10,12 +10,9 @@ using DAQSystem.DataAcquisition;
 using NLog;
 using OxyPlot;
 using OxyPlot.Series;
-using SkiaSharp;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Windows;
 
 namespace DAQSystem.Application.UI
 {

@@ -79,15 +79,117 @@
                             <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.ButtonBorderHover}"/>
                             <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonTextHover}"/>
                             <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LightYellow}"/>
+                            <Setter Property="IsActive" Value="True"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{DynamicResource DAQSystem.ButtonBackgroundPressed}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.ButtonBorderPressed}"/>
                             <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonTextPressed}"/>
                             <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LightYellow}"/>
+                            <Setter Property="IsActive" Value="True"/>
                         </Trigger>
                         <Trigger Property="IsFocused" Value="true">
                             <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.Accent}" />
+                            <Setter Property="IsActive" Value="True"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style
+        x:Key="DAQSystem.ImageToggleButton"
+        TargetType="themes:ImageToggleButton">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Background"
+        Value="{DynamicResource DAQSystem.ButtonBackground}"/>
+        <Setter Property="BorderBrush"
+        Value="{DynamicResource DAQSystem.ButtonBorder}"/>
+        <Setter Property="BorderThickness"
+        Value="1"/>
+        <Setter Property="HorizontalContentAlignment"
+        Value="Center"/>
+        <Setter Property="VerticalContentAlignment"
+        Value="Center"/>
+        <Setter Property="Padding"
+        Value="5,5,5,5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="themes:ImageToggleButton">
+                    <Border Name="Chrome"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{StaticResource DAQSystem.ButtonCornerRadius}"
+                        SnapsToDevicePixels="true">
+                        <Grid 
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="{StaticResource DAQSystem.SmallMarginGridLength}"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <ContentControl
+                                Name="Icon"
+                                Grid.Column="0"
+                                Height="{TemplateBinding ImageHeight}"
+                                Width="{TemplateBinding ImageWidth}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Background="{TemplateBinding Background}"
+                                Foreground="{TemplateBinding Foreground}"
+                                Template="{TemplateBinding ImageSource}" />
+                            <TextBlock
+                                Grid.Column="2"
+                                Text="{TemplateBinding Content}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="Left"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                Background="{TemplateBinding Background}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Path=TextColor, RelativeSource={RelativeSource AncestorType=themes:ImageToggleButton}}" />
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ContentPresenter
+                                Grid.Column="0"
+                                Grid.ColumnSpan="3"
+                                Name="Presenter"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonText}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource DAQSystem.Yellow}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonTextDisabled}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource DAQSystem.DarkYellow}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource DAQSystem.ButtonBackgroundHover}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.ButtonBorderHover}"/>
+                            <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonTextHover}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LightYellow}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource DAQSystem.ButtonBackgroundPressed}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.ButtonBorderPressed}"/>
+                            <Setter Property="TextColor" Value="{DynamicResource DAQSystem.ButtonTextPressed}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource DAQSystem.LightYellow}"/>
+                            <Setter Property="IsActive" Value="True"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="true">
+                            <Setter Property="BorderBrush" Value="{DynamicResource DAQSystem.Accent}" />
+                            <Setter Property="IsActive" Value="True"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
