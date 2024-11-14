@@ -29,7 +29,7 @@ namespace DAQSystem.Application
 
                 InitializeLogging();
 
-                var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(Path.Combine(WORKING_DIRECTORY,APP_CONFIG_FILE_NAME)));
+                var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(Path.Combine(CONFIG_DIRECTORY,APP_CONFIG_FILE_NAME)));
                 appConfig.WorkingDirectory = Path.Combine(ROOT_DIRECTORY, appConfig.WorkingDirectory);
 
                 LogUtils.InitializeExtendedLogging(appConfig.FileLoggerLogLevel, appLogTargetName_, appConfig.ConsoleLoggerLogLevel);
@@ -59,7 +59,7 @@ namespace DAQSystem.Application
             var appVersion = appAssemblyName.Version;
 
             logDirectory_ = Path.Combine(
-                WORKING_DIRECTORY,
+                CONFIG_DIRECTORY,
                 LOG_DIRECTORY,
                 $"{appAssemblyName.Name}-{appVersion.Major}.{appVersion.Minor}.{appVersion.Build}",
                 $"{DateTime.Now:yyMMddHHmm}");

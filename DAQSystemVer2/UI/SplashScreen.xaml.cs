@@ -18,7 +18,7 @@ namespace DAQSystem.Application.UI
 
         private void OnSplashScreenLoaded(object sender, RoutedEventArgs e)
         {
-            LogUtils.ScanAndClearAppConfigFilesInAllDrivers(WORKING_DIRECTORY);
+            LogUtils.ScanAndClearAppConfigFilesInAllDrivers(CONFIG_DIRECTORY);
         }
     }
 }

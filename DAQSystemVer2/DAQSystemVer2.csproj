@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
     <Platforms>x64</Platforms>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DataAcquisition\DataAcquisition.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="res\appconfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
