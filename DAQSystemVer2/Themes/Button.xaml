@@ -128,7 +128,6 @@
                         HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="{StaticResource DAQSystem.SmallMarginGridLength}"/>
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <ContentControl
@@ -156,7 +155,7 @@
                             </TextBlock>
                             <ContentPresenter
                                 Grid.Column="0"
-                                Grid.ColumnSpan="3"
+                                Grid.ColumnSpan="2"
                                 Name="Presenter"
                                 Margin="{TemplateBinding Padding}"
                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
