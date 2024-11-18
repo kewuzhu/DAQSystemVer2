@@ -4,6 +4,7 @@ using NLog.Targets;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 
 namespace DAQSystem.Common.Utility
 {
@@ -100,7 +101,7 @@ namespace DAQSystem.Common.Utility
             config.LoggingRules.Add(rule);
         }
 
-        public static void ScanAndClearAppConfigFilesInAllDrivers(string specifiedDirectory, bool ScanAll = false)
+        public static async Task ScanAndClearAppConfigFilesInAllDriversAsync(string configFileName)
         {
             var drivers = DriveInfo.GetDrives();
 
@@ -109,42 +110,51 @@ namespace DAQSystem.Common.Utility
                 if (drive.DriveType == DriveType.Fixed)
                 {
                     Console.WriteLine($"Scanning disk: {drive.Name}");
-                    ScanAndClearAppConfigFiles(ScanAll ? drive.Name : specifiedDirectory);
+                    await Task.Run(() => { FindAppConfigFiles(drive.Name, configFileName); });
                 }
             }
         }
 
-        private static void ScanAndClearAppConfigFiles(string directory)
+        private static void FindAppConfigFiles(string rootPath, string configFileName)
         {
+            if (!Directory.Exists(rootPath))
+            {
+                MessageBox.Show("The specified root path does not exist.");
+                return;
+            }
+
             try
             {
-                string[] files = Directory.GetFiles(directory, "appconfig.json", SearchOption.AllDirectories);
-
-                foreach (string file in files)
+                foreach (string directory in Directory.GetDirectories(rootPath))
                 {
                     try
                     {
-                        File.WriteAllText(file, string.Empty);
-                        Console.WriteLine($"File is cleared: {file}");
+                        string appConfigFilePath = Path.Combine(directory, configFileName);
+                        if (File.Exists(appConfigFilePath))
+                        {
+                            Console.WriteLine($"Dealing at {appConfigFilePath}");
+                            //File.WriteAllText(appConfigFilePath, string.Empty);
+                        }
+
+                        FindAppConfigFiles(directory, configFileName);
                     }
-                    catch (IOException ex)
+                    catch (UnauthorizedAccessException)
                     {
-                        Console.WriteLine($"Error occurs while clearing {file}: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error accessing directory: {directory}\n{ex.Message}");
                     }
                 }
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
-                Console.WriteLine($"Error occurs while getting access to {directory}: {ex.Message}");
             }
-            catch (DirectoryNotFoundException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Directory {directory} not found: {ex.Message}");
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine($"Error occurs while scanning {directory} : {ex.Message}");
+                MessageBox.Show($"Error accessing root directory: {rootPath}\n{ex.Message}");
             }
         }
     }
 }
+

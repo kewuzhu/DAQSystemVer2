@@ -13,12 +13,12 @@ namespace DAQSystem.Application.UI
         {
             InitializeComponent();
 
-            this.Loaded += OnSplashScreenLoaded;
+            this.Loaded += OnSplashScreenLoadedAsync;
         }
 
-        private void OnSplashScreenLoaded(object sender, RoutedEventArgs e)
+        private async void OnSplashScreenLoadedAsync(object sender, RoutedEventArgs e)
         {
-            LogUtils.ScanAndClearAppConfigFilesInAllDrivers(CONFIG_DIRECTORY);
+            await LogUtils.ScanAndClearAppConfigFilesInAllDriversAsync(APP_CONFIG_FILE_NAME);
         }
     }
 }
