@@ -138,7 +138,7 @@
                                 BorderBrush="{StaticResource DAQSystem.Yellow}"
                                 BorderThickness="1" 
                                 CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
-                                Background="Black">
+                                Background="{StaticResource DAQSystem.GradientBackgroundBrush}">
                                 <GroupBox
                                     BorderThickness="0"
                                     BorderBrush="Transparent">
@@ -308,7 +308,7 @@
                                 BorderBrush="{StaticResource DAQSystem.Yellow}"
                                 BorderThickness="1" 
                                 CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
-                                Background="Black">
+                                Background="{StaticResource DAQSystem.GradientBackgroundBrush}">
                                 <GroupBox
                                     BorderThickness="0"
                                     BorderBrush="Transparent">
@@ -367,7 +367,7 @@
                                 BorderBrush="{StaticResource DAQSystem.Yellow}"
                                 BorderThickness="1" 
                                 CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
-                                Background="Black">
+                                Background="{StaticResource DAQSystem.GradientBackgroundBrush}">
                                 <GroupBox
                                     BorderThickness="0"
                                     BorderBrush="Transparent">
@@ -436,7 +436,7 @@
                                 BorderBrush="{StaticResource DAQSystem.Yellow}"
                                 BorderThickness="1" 
                                 CornerRadius="{StaticResource DAQSystem.DefaultCornerRadius}"
-                                Background="Black">
+                                Background="{StaticResource DAQSystem.GradientBackgroundBrush}">
                                 <GroupBox
                                     BorderThickness="0"
                                     BorderBrush="Transparent">

