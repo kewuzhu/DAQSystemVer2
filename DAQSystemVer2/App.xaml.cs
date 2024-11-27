@@ -25,8 +25,6 @@ namespace DAQSystem.Application
 
             try
             {
-                base.OnStartup(e);
-
                 InitializeLogging();
 
                 var appConfig = JsonSerializer.Deserialize<ApplicationConfiguration>(File.ReadAllText(Path.Combine(CONFIG_DIRECTORY,APP_CONFIG_FILE_NAME)));
